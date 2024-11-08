@@ -7,6 +7,7 @@ GO
 USE COMERCIO;
 GO
 
+
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Supermercado')
 BEGIN
     EXEC('CREATE SCHEMA Supermercado');
@@ -22,12 +23,17 @@ GO
 CREATE OR ALTER PROCEDURE Supermercado.crearTablas
 AS
 BEGIN
+
+
+
     -- Crear la tabla Sucursal solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Sucursal') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Sucursal (
             SucursalID INT PRIMARY KEY IDENTITY(1,1),
-            Nombre VARCHAR(30) NOT NULL
+			Ciudad varchar(50),
+			Direccion varchar(200),
+            Telefono VARCHAR(30)
         );
     END
 
@@ -40,8 +46,6 @@ BEGIN
             Ciudad VARCHAR(100) NOT NULL,       -- Ciudad donde reside el cliente
             TipoCliente VARCHAR(30) NOT NULL,   -- Tipo de cliente (minorista, mayorista, etc.)
             Genero CHAR(1),                     -- Género del cliente (opcional)
-            SucursalID INT NOT NULL,             -- Un cliente en una sola sucursal
-            FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
         );
     END
 
@@ -49,11 +53,16 @@ BEGIN
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Empleado') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Empleado (
-            Legajo INT PRIMARY KEY IDENTITY(1,1),
+            Legajo INT PRIMARY KEY,
             Nombre VARCHAR(100) NOT NULL,
             Apellido VARCHAR(100) NOT NULL,
-            FechaIngreso DATE NOT NULL,
+			Dni INT NOT NULL,
+			Direccion varchar(100) NOT NULL,
+            Email varchar(100),
+			EmailEmpresa varchar(100),
+			cargo varchar(50) NOT NULL,
             SucursalID INT NOT NULL,
+			Turno varchar(30),
             FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
         );
     END
@@ -64,7 +73,7 @@ BEGIN
         CREATE TABLE Supermercado.Producto (
             ProductoID INT PRIMARY KEY IDENTITY(1,1),
             Categoria VARCHAR(200) NOT NULL,
-            NombreProducto NVARCHAR(200) NOT NULL,
+            NombreProducto VARCHAR(200) NOT NULL,
             PrecioUnitario DECIMAL(10, 2) NOT NULL,
 			PrecioUnitarioUsd DECIMAL(10,2) NULL,
             PrecioReferencia DECIMAL(10, 2) NULL,
@@ -92,26 +101,31 @@ BEGIN
 			IDFactura INT PRIMARY KEY IDENTITY(1,1),
             nroFactura VARCHAR(50) UNIQUE,
             TipoFactura VARCHAR(10), --Aca puede ser factura o nota de credito
-			IDFacturaNC INT NULL, -- Si llega a ser nota de credito necesita estar asociada a una factura
-            Ciudad VARCHAR(50),
-            TipoCliente VARCHAR(20),
-            Genero VARCHAR(10),
+			FacturaNC INT NULL, -- Si llega a ser nota de credito necesita estar asociada a una factura
+			sucursal INT NOT NULL,
             Producto INT,
-            PrecioUnitario DECIMAL(10,2),
             Cantidad INT,
             Fecha DATE NOT NULL,
             Hora TIME NOT NULL,
             MedioPago VARCHAR(50) NOT NULL,
-            Empleado INT,
+            Empleado INT NOT NULL,
+			Cliente INT NOT NULL,
             IdentificadorPago VARCHAR(50) NULL
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(Legajo),
-			FOREIGN KEY (IDFacturaNC) REFERENCES Ventas.Factura(IDFactura),
+			FOREIGN KEY (FacturaNC) REFERENCES Ventas.Factura(IDFactura),
 			FOREIGN KEY (Producto) REFERENCES Supermercado.Producto(ProductoID),
-			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(MedioPagoName)
+			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(MedioPagoName),
+			FOREIGN KEY (Cliente) REFERENCES Supermercado.Cliente(ClienteID),
+			FOREIGN KEY (Sucursal) REFERENCES Supermercado.Sucursal(SucursalID)
         );
     END
 END;
 GO
+
+
+
+
+
 
 -- CREAMOS TODAS LAS TABLAS SI NO ESTAN CREADAS--
 EXEC Supermercado.crearTablas;

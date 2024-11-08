@@ -219,21 +219,12 @@ BEGIN
 END;
 GO
 
---Estas lineas son necesarias pq sino no te deja hacer bulk usando el OLEDB
--- creo que es para darle acceso a los archivos
-EXEC sp_configure 'show advanced options', 1
-RECONFIGURE WITH OVERRIDE
+
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDatosG12-main\Productos\catalogo.csv'
 GO
 
-EXEC sp_configure 'ad hoc distributed queries', 1
-RECONFIGURE WITH OVERRIDE
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDatosG12-main\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Productos\catalogo.csv'
-GO
-
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
-GO
-
-EXEC Supermercado.InsertarProductosImportados'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Productos\Productos_importados.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDatosG12-main\Productos\Productos_importados.xlsx'
 GO
