@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TrabajoIntegradorG12">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="DESKTOP-O7U17UT:DESKTOP-O7U17UT\marti">
+          <Created>2024-11-06T16:13:29.0737926-03:00</Created>
+          <Type>SQL</Type>
+          <Server>DESKTOP-O7U17UT</Server>
+          <UserName />
+          <Authentication>Windows Authentication</Authentication>
+          <InitialDB />
+          <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>False</TrustServerCertificate>
+          <HostNameInServerCertificate />
+          <EncryptionOption>False</EncryptionOption>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="Borrado.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Borrado.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Consultas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Consultas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Creacion Base y Tablas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Creacion Base y Tablas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="ImportarArchivosProductos.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>ImportarArchivosProductos.sql</FullPath>
+        </FileNode>
+        <FileNode Name="ImportarArchivosSupermercado.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>ImportarArchivosSupermercado.sql</FullPath>
+        </FileNode>
+        <FileNode Name="ImportarArchivosVentas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>ImportarArchivosVentas.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>
