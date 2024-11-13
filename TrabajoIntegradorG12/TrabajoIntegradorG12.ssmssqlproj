@@ -3,48 +3,51 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="MARTIN:MARTIN\marin">
-          <Created>2024-11-07T23:48:46.4845225-03:00</Created>
+        <ConnectionNode Name="DESKTOP-GM81HBQ:DESKTOP-GM81HBQ\Usuario">
+          <Created>2024-11-12T23:25:33.4408792-03:00</Created>
           <Type>SQL</Type>
-          <Server>MARTIN</Server>
+          <Server>DESKTOP-GM81HBQ</Server>
           <UserName />
           <Authentication>Windows Authentication</Authentication>
           <InitialDB />
           <LoginTimeout>30</LoginTimeout>
-          <TrustServerCertificate>True</TrustServerCertificate>
-          <HostNameInServerCertificate />
-          <EncryptionOption>False</EncryptionOption>
           <ExecutionTimeout>0</ExecutionTimeout>
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
-          <ApplicationName />
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
         </ConnectionNode>
       </Items>
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
         <FileNode Name="0.Creacion Base y Tablas.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>0.Creacion Base y Tablas.sql</FullPath>
         </FileNode>
         <FileNode Name="1.ImportarArchivosSupermercado.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>1.ImportarArchivosSupermercado.sql</FullPath>
         </FileNode>
         <FileNode Name="2.ImportarArchivosProductos.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>2.ImportarArchivosProductos.sql</FullPath>
         </FileNode>
         <FileNode Name="3.ImportarArchivosVentas.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>3.ImportarArchivosVentas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="4.ConsultaSimple.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>4.ConsultaSimple.sql</FullPath>
         </FileNode>
         <FileNode Name="Borrado(opcional).sql">
           <AssociatedConnectionMoniker />

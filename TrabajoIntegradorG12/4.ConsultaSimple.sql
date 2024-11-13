@@ -123,6 +123,94 @@ BEGIN
 END;
 GO
 
+--INSERTAR EMPLEADO ENCRIPTADO
+CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevoEmpleadoEncriptado --SOLO PARA ADMINS
+    @Legajo INT,
+    @NombreEmpleado NVARCHAR(100),
+    @Apellido NVARCHAR(100),
+    @Dni INT,
+    @Direccion NVARCHAR(100),
+    @Email NVARCHAR(100),
+    @EmailEmpresa NVARCHAR(100),
+    @Cargo NVARCHAR(50),
+    @SucursalID INT,
+    @Turno NVARCHAR(30),
+    @FraseClave NVARCHAR(128)
+AS
+BEGIN
+    -- Verificar si el empleado ya existe
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM Supermercado.EmpleadoEncriptado 
+        WHERE Legajo = @Legajo 
+        OR Dni = EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni))
+    )
+    BEGIN
+        -- Insertar los datos en la tabla EmpleadoEncriptado con encriptación
+        INSERT INTO Supermercado.EmpleadoEncriptado (Legajo, Nombre, Apellido, Dni, Direccion, Email, EmailEmpresa, Cargo, SucursalID, Turno)
+        VALUES (
+            @Legajo,
+            EncryptByPassPhrase(@FraseClave, @NombreEmpleado),
+            EncryptByPassPhrase(@FraseClave, @Apellido),
+            EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni)),  -- C--NO ENTIENDO BIEN PQ TENGO QUE CONVERTIRLO CUANDO LO CREE COMO VARBINARY, PERO SI NO ME TIRA ERROR
+            EncryptByPassPhrase(@FraseClave, @Direccion),
+            EncryptByPassPhrase(@FraseClave, @Email),
+            @EmailEmpresa,  
+            @Cargo,        
+            @SucursalID,
+            @Turno
+        );
+        PRINT 'Empleado insertado exitosamente con datos encriptados.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'El empleado con este Legajo o DNI ya existe y no se ha insertado.';
+    END
+END;
+GO
+
+
+
+
+
+CREATE OR ALTER PROCEDURE Supermercado.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
+    @FraseClave NVARCHAR(128)
+AS
+BEGIN
+    -- Manejo de errores
+    BEGIN TRY
+        -- Seleccionar y desencriptar los datos de la tabla
+        SELECT 
+            Legajo,
+            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Nombre)) AS Nombre,
+            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Apellido)) AS Apellido,
+            CONVERT(INT, DecryptByPassPhrase(@FraseClave, CONVERT(VARBINARY(256), Dni))) AS DNI, --NO ENTIENDO BIEN PQ TENGO QUE CONVERTIRLO CUANDO LO CREE COMO VARBINARY, PERO SI NO ME TIRA ERROR
+            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Direccion)) AS Direccion,
+            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Email)) AS Email,
+            EmailEmpresa,
+            Cargo,
+            SucursalID,
+            Turno
+        FROM 
+            Supermercado.EmpleadoEncriptado;
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores: imprime el mensaje de error
+        PRINT 'Error al desencriptar los datos de la tabla Supermercado.EmpleadoEncriptado:';
+        PRINT ERROR_MESSAGE();
+    END CATCH;
+END;
+GO
+
+
+
+
+
+
+
+
+
+
 -- INSERTAR NUEVO MEDIO DE PAGO
 CREATE OR ALTER PROCEDURE Ventas.InsertarNuevoMedioPago
     @MedioPagoName VARCHAR(50),
@@ -144,7 +232,7 @@ GO
 
 
 ---MOSTRAR REPORTE DE VENTAS 
-CREATE OR ALTER PROCEDURE Ventas.MostrarReporteVentas
+CREATE OR ALTER PROCEDURE Ventas.MostrarReporteVentas 
 AS
 BEGIN
     SELECT
