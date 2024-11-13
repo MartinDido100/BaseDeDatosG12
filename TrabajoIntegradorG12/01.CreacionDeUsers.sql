@@ -1,36 +1,3 @@
----------------------------ADMIN------------------------------------------------------------------------
--- 1. Crear el login para el servidor
-CREATE LOGIN fabricio WITH PASSWORD = 'basededatos';
-
--- 2. Cambiar al contexto de la base de datos COMERCIO
-USE COMERCIO;
-
--- 3. Crear el usuario en la base de datos 'COMERCIO' asociando el login 'fabricio'
-CREATE USER fabricio FOR LOGIN fabricio;
-
--- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
-ALTER SERVER ROLE sysadmin ADD MEMBER fabricio;
-
--- Confirmación de la creación
-PRINT 'El usuario fabricio ha sido creado con permisos de administrador';
------------------------------------SUPERVISOR------------------------------------------------------------
--- Crear login para 'martin'
-CREATE LOGIN martin WITH PASSWORD = 'tincho32';
-
--- Usar la base de datos 'COMERCIO'
-USE COMERCIO;
-
--- Crear el usuario 'martin' en la base de datos 'COMERCIO'
-CREATE USER martin FOR LOGIN martin;
-
--- Asignar el rol 'Supervisor' al usuario 'martin'
-EXEC sp_addrolemember 'Supervisor', 'martin';
-
-PRINT 'Usuario "martin" creado exitosamente con el rol Supervisor.';
---------------------------------------------------------------------------------
-
-
-
 CREATE OR ALTER PROCEDURE CrearRolesConPermisos --CREO LOS ROLES EXISTENTES EN MI BD
 AS
 BEGIN
@@ -71,6 +38,40 @@ BEGIN
     END
 END;
 GO
+
+EXEC CrearRolesConPermisos
+
+---------------------------ADMIN------------------------------------------------------------------------
+-- 1. Crear el login para el servidor
+CREATE LOGIN fabricio WITH PASSWORD = 'basededatos';
+
+-- 2. Cambiar al contexto de la base de datos COMERCIO
+USE COMERCIO;
+
+-- 3. Crear el usuario en la base de datos 'COMERCIO' asociando el login 'fabricio'
+CREATE USER fabricio FOR LOGIN fabricio;
+
+-- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
+ALTER SERVER ROLE sysadmin ADD MEMBER fabricio;
+
+-- Confirmación de la creación
+PRINT 'El usuario fabricio ha sido creado con permisos de administrador';
+-----------------------------------SUPERVISOR------------------------------------------------------------
+-- Crear login para 'martin'
+CREATE LOGIN martin WITH PASSWORD = 'tincho32';
+
+-- Usar la base de datos 'COMERCIO'
+USE COMERCIO;
+
+-- Crear el usuario 'martin' en la base de datos 'COMERCIO'
+CREATE USER martin FOR LOGIN martin;
+
+-- Asignar el rol 'Supervisor' al usuario 'martin'
+EXEC sp_addrolemember 'Supervisor', 'martin';
+
+PRINT 'Usuario "martin" creado exitosamente con el rol Supervisor.';
+--------------------------------------------------------------------------------
+
 
 CREATE OR ALTER PROCEDURE CrearLogin
     @LoginNombre NVARCHAR(100),
@@ -146,10 +147,5 @@ BEGIN
 END;
 GO
 
-
-
-
-
-EXEC CrearRolesConPermisos
 EXEC CrearLogin 'ingenieria','informatica'
 EXEC CrearUsuario 'ingenieria','ahorasinene'

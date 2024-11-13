@@ -143,10 +143,5 @@ BEGIN
 END;
 GO
 
-
-
-
-
-
 -- CREAMOS TODAS LAS TABLAS SI NO ESTAN CREADAS--
 EXEC Supermercado.crearTablas;
