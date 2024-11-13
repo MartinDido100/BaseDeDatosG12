@@ -33,6 +33,7 @@ BEGIN
             SucursalID INT PRIMARY KEY IDENTITY(1,1),
 			Ciudad varchar(50),
 			Direccion varchar(200),
+			Horario varchar(100),
             Telefono VARCHAR(30)
         );
     END
@@ -67,6 +68,24 @@ BEGIN
         );
     END
 
+	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.EmpleadoEncriptado') AND type IN (N'U'))
+	BEGIN
+		CREATE TABLE Supermercado.EmpleadoEncriptado (
+			Legajo INT PRIMARY KEY,
+			Nombre VARBINARY(256) NOT NULL,            -- Encriptado
+			Apellido VARBINARY(256) NOT NULL,          -- Encriptado
+			Dni VARBINARY(256) NOT NULL,               -- Encriptado
+			Direccion VARBINARY(256) NOT NULL,         -- Encriptado
+			Email VARBINARY(256),                      -- Encriptado
+			EmailEmpresa NVARCHAR(100),                -- No encriptado
+			Cargo NVARCHAR(50) NOT NULL,               -- No encriptado
+			SucursalID INT NOT NULL,
+			Turno NVARCHAR(30),                        -- No encriptado
+			FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
+		);
+	END;
+	
+
     -- Crear la tabla Producto solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Producto') AND type IN (N'U'))
     BEGIN
@@ -83,11 +102,13 @@ BEGIN
         );
     END
 
+	
     -- Crear la tabla MediosPago solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.MediosPago') AND type IN (N'U'))
     BEGIN
 		CREATE TABLE Ventas.MediosPago (
-			MedioPagoName VARCHAR(50) PRIMARY KEY,
+			IdMedioPago INT IDENTITY(1,1),
+			MedioPagoName VARCHAR(50),
 			Descripcion VARCHAR(255)
 		);
     END
