@@ -45,10 +45,10 @@ EXEC CrearRolesConPermisos
 -- 1. Crear el login para el servidor
 CREATE LOGIN fabricio WITH PASSWORD = 'basededatos';
 
--- 2. Cambiar al contexto de la base de datos COMERCIO
-USE COMERCIO;
+-- 2. Cambiar al contexto de la base de datos Com5600G12
+USE Com5600G12;
 
--- 3. Crear el usuario en la base de datos 'COMERCIO' asociando el login 'fabricio'
+-- 3. Crear el usuario en la base de datos 'Com5600G12' asociando el login 'fabricio'
 CREATE USER fabricio FOR LOGIN fabricio;
 
 -- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
@@ -60,10 +60,10 @@ PRINT 'El usuario fabricio ha sido creado con permisos de administrador';
 -- Crear login para 'martin'
 CREATE LOGIN martin WITH PASSWORD = 'tincho32';
 
--- Usar la base de datos 'COMERCIO'
-USE COMERCIO;
+-- Usar la base de datos 'Com5600G12'
+USE Com5600G12;
 
--- Crear el usuario 'martin' en la base de datos 'COMERCIO'
+-- Crear el usuario 'martin' en la base de datos 'Com5600G12'
 CREATE USER martin FOR LOGIN martin;
 
 -- Asignar el rol 'Supervisor' al usuario 'martin'
@@ -111,21 +111,21 @@ BEGIN
     -- Verificar si el login existe
     IF EXISTS (SELECT * FROM sys.server_principals WHERE name = @LoginNombre)
     BEGIN
-        -- Verificar si la base de datos 'COMERCIO' existe
-        IF EXISTS (SELECT * FROM sys.databases WHERE name = 'COMERCIO')
+        -- Verificar si la base de datos 'Com5600G12' existe
+        IF EXISTS (SELECT * FROM sys.databases WHERE name = 'Com5600G12')
         BEGIN
         
-            -- Verificar si el usuario ya existe en la base de datos 'COMERCIO'
+            -- Verificar si el usuario ya existe en la base de datos 'Com5600G12'
             IF EXISTS (SELECT * FROM sys.database_principals WHERE name = @UsuarioNombre)
             BEGIN
-                PRINT 'El usuario ya existe en la base de datos COMERCIO';
+                PRINT 'El usuario ya existe en la base de datos Com5600G12';
             END
             ELSE
             BEGIN
-                -- Crear el usuario en la base de datos 'COMERCIO' usando SQL dinámico
+                -- Crear el usuario en la base de datos 'Com5600G12' usando SQL dinámico
                 DECLARE @Sql NVARCHAR(MAX);
                 SET @Sql = 'CREATE USER ' + QUOTENAME(@UsuarioNombre) + ' FOR LOGIN ' + QUOTENAME(@LoginNombre) + ';
-                            PRINT ''Usuario creado exitosamente en la base de datos COMERCIO'';
+                            PRINT ''Usuario creado exitosamente en la base de datos Com5600G12'';
                             
                             -- Asignar el rol ''Empleado'' automáticamente
                             EXEC sp_addrolemember @RoleName = N''Empleado'', @MemberName = N''' + @UsuarioNombre + '''; 
@@ -137,7 +137,7 @@ BEGIN
         END
         ELSE
         BEGIN
-            PRINT 'La base de datos COMERCIO no existe';
+            PRINT 'La base de datos Com5600G12 no existe';
         END
     END
     ELSE

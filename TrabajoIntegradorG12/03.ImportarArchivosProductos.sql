@@ -1,4 +1,4 @@
-USE Comercio;
+USE Com5600G12;
 GO
 
 CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosCatalogo

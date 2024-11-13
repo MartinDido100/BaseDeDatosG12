@@ -1,4 +1,4 @@
-USE Comercio;
+USE Com5600G12;
 GO
 
 CREATE OR ALTER PROCEDURE Supermercado.InsertarSucursales
@@ -33,10 +33,10 @@ BEGIN
         -- Insertar los datos únicos en la tabla definitiva Supermercado.Producto
         INSERT INTO Supermercado.Sucursal (Ciudad,Direccion,Horario,Telefono)
         SELECT  
-			Ciudad as ReemplazoCiudad,
-			Direccion AS direccion,
-			Horario AS horario,
-            Telefono AS telefono
+			ReemplazoCiudad as Ciudad,
+			direccion AS Direccion,
+			horario AS horario,
+            telefono AS Telefono
         FROM (
             SELECT 
                 ReemplazoCiudad,
@@ -253,12 +253,12 @@ BEGIN
         DECLARE @sql NVARCHAR(MAX) = '
             INSERT INTO #temporal (Descripcion, MedioPagoName)
             SELECT 
-                F2 AS Descripcion,
-                F3 AS MedioPagoName
+                F1 AS Descripcion,
+                F2 AS MedioPagoName
             FROM OPENROWSET(
                 ''Microsoft.ACE.OLEDB.12.0'', 
-                ''Excel 12.0 Xml;HDR=NO;Database=' + @rutaArchivo + ''', 
-                ''SELECT * FROM [medio de pago$B3:C]''  -- Aquí se ajusta el rango
+                ''Excel 12.0 Xml;HDR=YES;Database=' + @rutaArchivo + ''', 
+                ''SELECT * FROM [medios de pago$B3:C]''  -- Aquí se ajusta el rango
             ) AS ExcelData';
 
         -- Ejecutar la consulta dinámica para cargar los datos del Excel en la tabla temporal
@@ -286,6 +286,6 @@ END;
 GO
 
 
-exec Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega04\BaseDeDatosG12\Informacion_complementaria.xlsx'
-exec Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega04\BaseDeDatosG12\Informacion_complementaria.xlsx'
-exec Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega04\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Supermercado.InsertarSucursales 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Supermercado.InsertarEmpleados 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Ventas.InsertarMediosPago 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Informacion_complementaria.xlsx'
