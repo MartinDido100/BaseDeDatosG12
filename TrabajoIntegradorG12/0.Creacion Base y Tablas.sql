@@ -1,10 +1,10 @@
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'COMERCIO')
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com5600G12')
 BEGIN
-    CREATE DATABASE COMERCIO;
+    CREATE DATABASE Com5600G12;
 END
 GO
 
-USE COMERCIO;
+USE Com5600G12;
 GO
 
 
@@ -19,6 +19,13 @@ BEGIN
     EXEC('CREATE SCHEMA Ventas');
 END
 GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Autenticacion')
+BEGIN
+    EXEC('CREATE SCHEMA Autenticacion');
+END
+GO
+
 
 CREATE OR ALTER PROCEDURE Supermercado.crearTablas
 AS

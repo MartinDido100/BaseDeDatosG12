@@ -1,4 +1,4 @@
-USE COMERCIO
+USE Com5600G12
 GO
 
 --OBJECT_ID ( 'nombre_del_objeto' , 'tipo_objeto' )
