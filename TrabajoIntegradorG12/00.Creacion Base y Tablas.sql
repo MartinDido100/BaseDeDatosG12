@@ -25,6 +25,15 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Supervisor')
+BEGIN
+    EXEC('CREATE SCHEMA Supervisor');
+END
+GO
+
+
+USE Com5600G12
+
 CREATE OR ALTER PROCEDURE Supermercado.crearTablas
 AS
 BEGIN
@@ -77,7 +86,8 @@ BEGIN
 	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.EmpleadoEncriptado') AND type IN (N'U'))
 	BEGIN
 		CREATE TABLE Supermercado.EmpleadoEncriptado (
-			Legajo INT PRIMARY KEY,
+			EmpleadoID INT PRIMARY KEY IDENTITY(1,1),
+            Legajo INT UNIQUE,
 			Nombre VARBINARY(256) NOT NULL,            -- Encriptado
 			Apellido VARBINARY(256) NOT NULL,          -- Encriptado
 			Dni VARBINARY(256) NOT NULL,               -- Encriptado

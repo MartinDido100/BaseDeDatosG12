@@ -5,7 +5,7 @@ GO
 --borro la tabla si es existe, nose si es necesario y es peligroso, es solo para hacer las pruebas en limpio, no deberia ir en el
 --projecto final, ya que es peligroso
 
-CREATE OR ALTER PROCEDURE Supermercado.borrarTablas
+CREATE OR ALTER PROCEDURE Supervisor.borrarTablas
 AS
 BEGIN
 
@@ -27,6 +27,9 @@ BEGIN
 
     IF OBJECT_ID(N'Supermercado.Sucursal', N'U') IS NOT NULL
         DROP TABLE Supermercado.Sucursal;
+
+	IF OBJECT_ID(N'Supermercado.EmpleadoEncriptado', N'U') IS NOT NULL
+        DROP TABLE Supermercado.EmpleadoEncriptado;
 
 END;
 GO

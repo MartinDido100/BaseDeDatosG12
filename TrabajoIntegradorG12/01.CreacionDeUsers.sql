@@ -27,16 +27,21 @@ USE Com5600G12;
 CREATE USER martin FOR LOGIN martin;
 
 -- Asignar el rol 'Supervisor' al usuario 'martin'
-EXEC sp_addrolemember 'Supervisor', 'martin';
+EXEC sp_addrolemember 'Empleado', 'martin';
 
 PRINT 'Usuario "martin" creado exitosamente con el rol Supervisor.';
 --------------------------------------------------------------------------------
+
+
+
+SELECT * FROM Supermercado.Sucursal
+
 
 USE Com5600G12
 
 
 
-CREATE OR ALTER PROCEDURE Autenticacion.CrearRolesConPermisos --CREO LOS ROLES EXISTENTES EN MI BD
+CREATE OR ALTER PROCEDURE Supervisor.CrearRolesConPermisos --CREO LOS ROLES EXISTENTES EN MI BD
 AS
 BEGIN
     -- Verificar si el rol Supervisor ya existe, si no lo crea
@@ -47,10 +52,9 @@ BEGIN
         PRINT 'Rol Supervisor creado';
         
         -- Asignar permisos totales (SELECT, INSERT, UPDATE, DELETE y EXECUTE) sobre los esquemas Ventas y Supermercado
-        GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::Ventas TO Supervisor;
-        GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::Supermercado TO Supervisor;
         GRANT EXECUTE ON SCHEMA::Ventas TO Supervisor;
         GRANT EXECUTE ON SCHEMA::Supermercado TO Supervisor;
+		GRANT EXECUTE ON SCHEMA::Supervisor TO Supervisor;
         PRINT 'Permisos totales asignados al rol Supervisor';
     END
     ELSE
@@ -79,9 +83,10 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE Autenticacion.CrearLoginUser
+
+CREATE OR ALTER PROCEDURE Supermercado.CrearLoginUserEmpleado
     @LoginUsuario NVARCHAR(100),
-    @Contrase�a NVARCHAR(100)
+    @Contraseña NVARCHAR(100)
 AS
 BEGIN
     -- Verificar si el login ya existe
@@ -93,7 +98,7 @@ BEGIN
 
     -- Crear un nuevo login usando SQL din�mico
     DECLARE @SqlLogin NVARCHAR(MAX);
-    SET @SqlLogin = 'CREATE LOGIN ' + QUOTENAME(@LoginUsuario) + ' WITH PASSWORD = ''' + @Contrase�a + '''';
+    SET @SqlLogin = 'CREATE LOGIN ' + QUOTENAME(@LoginUsuario) + ' WITH PASSWORD = ''' + @Contraseña + '''';
     EXEC sp_executesql @SqlLogin;
     PRINT 'Login creado exitosamente';
 
@@ -129,12 +134,62 @@ BEGIN
 END;
 GO
 
+--POR SI UN SUPERVISOR QUIERE AGREGAR A OTRO SUPERVISOR
+CREATE OR ALTER PROCEDURE Supervisor.CrearLoginUserSupervisor
+    @LoginUsuario NVARCHAR(100),
+    @Contraseña NVARCHAR(100)
+AS
+BEGIN
+    -- Verificar si el login ya existe
+    IF EXISTS (SELECT * FROM sys.server_principals WHERE name = @LoginUsuario)
+    BEGIN
+        RAISERROR('Error: El login ya existe', 16, 1);
+        RETURN;
+    END
 
+    -- Crear un nuevo login usando SQL din�mico
+    DECLARE @SqlLogin NVARCHAR(MAX);
+    SET @SqlLogin = 'CREATE LOGIN ' + QUOTENAME(@LoginUsuario) + ' WITH PASSWORD = ''' + @Contraseña + '''';
+    EXEC sp_executesql @SqlLogin;
+    PRINT 'Login creado exitosamente';
+
+    -- Verificar si la base de datos 'Com5600G12' existe
+    IF EXISTS (SELECT * FROM sys.databases WHERE name = 'Com5600G12')
+    BEGIN
+        -- Crear el usuario en la base de datos 'Com5600G12' usando el mismo nombre que el login
+        DECLARE @SqlUsuario NVARCHAR(MAX);
+        
+        SET @SqlUsuario = '
+            USE Com5600G12;
+            IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N''' + @LoginUsuario + ''')
+            BEGIN
+                CREATE USER ' + QUOTENAME(@LoginUsuario) + ' FOR LOGIN ' + QUOTENAME(@LoginUsuario) + ';
+                PRINT ''Usuario creado exitosamente en la base de datos Com5600G12'';
+
+                -- Asignar el rol ''Empleado'' autom�ticamente
+                EXEC sp_addrolemember @RoleName = N''Supervisor'', @MemberName = N''' + @LoginUsuario + ''';
+                PRINT ''Rol Supervisor asignado exitosamente a ' + @LoginUsuario + ''';
+            END
+            ELSE
+            BEGIN
+                PRINT ''El usuario ya existe en la base de datos Com5600G12'';
+            END';
+        
+        -- Ejecutar el SQL din�mico para crear el usuario y asignar el rol
+        EXEC sp_executesql @SqlUsuario;
+    END
+    ELSE
+    BEGIN
+        PRINT 'La base de datos Com5600G12 no existe';
+    END
+END;
+GO
 
 
 
 EXEC Autenticacion.CrearRolesConPermisos
-EXEC Autenticacion.CrearLoginUser 'soyYO','contrase�a'
+EXEC Autenticacion.CrearLoginUserEmpleado 'soymessi','contraseña'
+EXEC Autenticacion.CrearLoginUserSupervisor 'mbappe','contraseña'
 
 
 USE MASTER

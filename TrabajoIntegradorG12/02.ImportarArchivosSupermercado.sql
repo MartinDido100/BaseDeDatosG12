@@ -157,7 +157,7 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Supermercado.InsertarEmpleadosEncriptado --solo el admin por logica
+CREATE OR ALTER PROCEDURE Supervisor.InsertarEmpleadosEncriptado --solo el Supervisor por que el solo sabe la contraseña
     @rutaArchivo NVARCHAR(MAX),
     @fraseClave NVARCHAR(128)
 AS
@@ -231,7 +231,7 @@ BEGIN
             Supermercado.Sucursal s ON t.Sucursal = s.Ciudad
 		WHERE NOT EXISTS (
             SELECT 1 
-            FROM Supermercado.Empleado e 
+            FROM Supermercado.EmpleadoEncriptado e 
             WHERE e.Legajo = t.Legajo
         );
 
@@ -250,6 +250,7 @@ BEGIN
     END CATCH;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE Ventas.InsertarMediosPago
     @rutaArchivo NVARCHAR(MAX)
@@ -304,11 +305,31 @@ BEGIN
 END;
 GO
 
-exec Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+exec Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
-exec Supermercado.InsertarEmpleados 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+SELECT * 
+FROM
+Supermercado.Sucursal
+
+
+exec Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
-exec Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+SELECT * 
+FROM
+Supermercado.Empleado
+
+
+
+
+
+SELECT * 
+FROM
+Supermercado.EmpleadoEncriptado
+
+exec Supermercado.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
+GO
+
+exec Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO

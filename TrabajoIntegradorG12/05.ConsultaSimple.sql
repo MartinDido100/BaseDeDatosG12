@@ -124,7 +124,7 @@ END;
 GO
 
 --INSERTAR EMPLEADO ENCRIPTADO
-CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevoEmpleadoEncriptado --SOLO PARA ADMINS
+CREATE OR ALTER PROCEDURE Supervisor.InsertarNuevoEmpleadoEncriptado --SOLO PARA Supervisores
     @Legajo INT,
     @NombreEmpleado NVARCHAR(100),
     @Apellido NVARCHAR(100),
@@ -173,7 +173,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE Supermercado.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
+CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
     @FraseClave NVARCHAR(128)
 AS
 BEGIN
@@ -201,6 +201,8 @@ BEGIN
     END CATCH;
 END;
 GO
+
+exec Supermercado.mostrarTablaEmpleadoEncriptada 'contraseña'
 
 
 

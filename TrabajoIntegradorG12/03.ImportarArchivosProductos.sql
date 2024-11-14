@@ -230,7 +230,7 @@ GO
 EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
 GO
 
 EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
