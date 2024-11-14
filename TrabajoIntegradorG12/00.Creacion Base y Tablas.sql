@@ -126,9 +126,7 @@ BEGIN
 		);
     END
 
-	-- Crear la tabla Factura solo si no existe
-	-- ACLARACION: Creamos la tabla factura que representa un solo producto (Por como venia el archivo de ventas decidimos hacerlo asi)
-	-- entendemos que es mejor crear una factura y muchas lineas de factura para que la misma pueda tener varios productos
+
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.Factura') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Ventas.Factura (
@@ -136,21 +134,31 @@ BEGIN
             nroFactura VARCHAR(50) UNIQUE,
             TipoFactura VARCHAR(10), --Aca puede ser factura o nota de credito
 			FacturaNC INT NULL, -- Si llega a ser nota de credito necesita estar asociada a una factura
-			sucursal INT NOT NULL,
-            Producto INT,
-            Cantidad INT,
+			sucursalID INT NOT NULL,
             Fecha DATE NOT NULL,
             Hora TIME NOT NULL,
             MedioPago INT NOT NULL,
             Empleado INT NOT NULL,
 			Cliente INT NOT NULL,
-            IdentificadorPago VARCHAR(50) NULL
+            IdentificadorPago VARCHAR(50) NULL,
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(Legajo),
 			FOREIGN KEY (FacturaNC) REFERENCES Ventas.Factura(IDFactura),
-			FOREIGN KEY (Producto) REFERENCES Supermercado.Producto(ProductoID),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
 			FOREIGN KEY (Cliente) REFERENCES Supermercado.Cliente(ClienteID),
-			FOREIGN KEY (Sucursal) REFERENCES Supermercado.Sucursal(SucursalID)
+			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
+        );
+    END
+
+	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.LineaFactura') AND type IN (N'U'))
+    BEGIN
+        CREATE TABLE Ventas.LineaFactura (
+			IDLineaFactura INT PRIMARY KEY IDENTITY(1,1),
+			Cantidad INT NOT NULL,
+			ProductoID INT NOT NULL,
+			FacturaID INT NOT NULL,
+			Subtotal DECIMAL(10,2) NOT NULL,
+			FOREIGN KEY (ProductoID) REFERENCES Supermercado.Producto(ProductoID),
+			FOREIGN KEY (FacturaID) REFERENCES Ventas.Factura(IDFactura)
         );
     END
 END;
