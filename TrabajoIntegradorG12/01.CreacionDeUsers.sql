@@ -11,7 +11,7 @@ CREATE USER mateo FOR LOGIN messi;
 -- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
 ALTER SERVER ROLE sysadmin ADD MEMBER fabricio;
 
--- Confirmación de la creación
+-- Confirmaciï¿½n de la creaciï¿½n
 PRINT 'El usuario fabricio ha sido creado con permisos de administrador';
 
 
@@ -81,7 +81,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Autenticacion.CrearLoginUser
     @LoginUsuario NVARCHAR(100),
-    @Contraseña NVARCHAR(100)
+    @Contraseï¿½a NVARCHAR(100)
 AS
 BEGIN
     -- Verificar si el login ya existe
@@ -91,9 +91,9 @@ BEGIN
         RETURN;
     END
 
-    -- Crear un nuevo login usando SQL dinámico
+    -- Crear un nuevo login usando SQL dinï¿½mico
     DECLARE @SqlLogin NVARCHAR(MAX);
-    SET @SqlLogin = 'CREATE LOGIN ' + QUOTENAME(@LoginUsuario) + ' WITH PASSWORD = ''' + @Contraseña + '''';
+    SET @SqlLogin = 'CREATE LOGIN ' + QUOTENAME(@LoginUsuario) + ' WITH PASSWORD = ''' + @Contraseï¿½a + '''';
     EXEC sp_executesql @SqlLogin;
     PRINT 'Login creado exitosamente';
 
@@ -110,7 +110,7 @@ BEGIN
                 CREATE USER ' + QUOTENAME(@LoginUsuario) + ' FOR LOGIN ' + QUOTENAME(@LoginUsuario) + ';
                 PRINT ''Usuario creado exitosamente en la base de datos Com5600G12'';
 
-                -- Asignar el rol ''Empleado'' automáticamente
+                -- Asignar el rol ''Empleado'' automï¿½ticamente
                 EXEC sp_addrolemember @RoleName = N''Empleado'', @MemberName = N''' + @LoginUsuario + ''';
                 PRINT ''Rol Empleado asignado exitosamente a ' + @LoginUsuario + ''';
             END
@@ -119,7 +119,7 @@ BEGIN
                 PRINT ''El usuario ya existe en la base de datos Com5600G12'';
             END';
         
-        -- Ejecutar el SQL dinámico para crear el usuario y asignar el rol
+        -- Ejecutar el SQL dinï¿½mico para crear el usuario y asignar el rol
         EXEC sp_executesql @SqlUsuario;
     END
     ELSE
@@ -134,7 +134,7 @@ GO
 
 
 EXEC Autenticacion.CrearRolesConPermisos
-EXEC Autenticacion.CrearLoginUser 'soyYO','contraseña'
+EXEC Autenticacion.CrearLoginUser 'soyYO','contraseï¿½a'
 
 
 USE MASTER

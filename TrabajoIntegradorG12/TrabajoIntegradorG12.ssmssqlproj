@@ -23,7 +23,7 @@
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>0.Creacion Base y Tablas.sql</FullPath>
+          <FullPath>00.Creacion Base y Tablas.sql</FullPath>
         </FileNode>
         <FileNode Name="01.CreacionDeUsers.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
@@ -35,19 +35,25 @@
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>1.ImportarArchivosSupermercado.sql</FullPath>
+          <FullPath>01.CreacionDeUsers.sql</FullPath>
         </FileNode>
         <FileNode Name="2.ImportarArchivosProductos.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>2.ImportarArchivosProductos.sql</FullPath>
+          <FullPath>02.ImportarArchivosSupermercado.sql</FullPath>
         </FileNode>
         <FileNode Name="3.ImportarArchivosVentas.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>3.ImportarArchivosVentas.sql</FullPath>
+          <FullPath>04.ImportarArchivosVentas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="05.ConsultaSimple.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>05.ConsultaSimple.sql</FullPath>
         </FileNode>
         <FileNode Name="4.ConsultaSimple.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
