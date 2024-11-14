@@ -39,7 +39,8 @@ BEGIN
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT 
             category AS Categoria,
-            name AS NombreProducto,
+            -- Aquí reemplazamos '?' por 'ñ' en la columna name (NombreProducto)
+            REPLACE(name, N'?', N'ñ') AS NombreProducto,
             TRY_CAST(price AS DECIMAL(10, 2)) AS PrecioUnitario,
             TRY_CAST(reference_price AS DECIMAL(10, 2)) AS PrecioReferencia,
             reference_unit AS UnidadReferencia,
@@ -52,7 +53,7 @@ BEGIN
                 reference_price,
                 reference_unit,
                 date,
-                ROW_NUMBER() OVER (PARTITION BY name ORDER BY category) AS RowNum
+                ROW_NUMBER() OVER (PARTITION BY name ORDER BY TRIM(LOWER(category))) AS RowNum
             FROM #temporal
             WHERE 
                 TRY_CAST(price AS DECIMAL(10, 2)) IS NOT NULL AND
@@ -60,11 +61,11 @@ BEGIN
                 TRY_CAST(date AS DATETIME) IS NOT NULL
         ) AS subquery
         WHERE RowNum = 1 AND 
-		NOT EXISTS (
-			SELECT 1
-			FROM Supermercado.Producto p
-			WHERE p.NombreProducto = subquery.name
-		);
+        NOT EXISTS (
+            SELECT 1
+            FROM Supermercado.Producto p
+            WHERE p.NombreProducto = subquery.name
+        );
 
         -- Limpiar la tabla temporal
         DROP TABLE #temporal;
@@ -83,6 +84,8 @@ END;
 GO
 
 
+
+
 CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosElectronicos
     @rutaArchivo NVARCHAR(MAX)
 AS
@@ -90,6 +93,10 @@ BEGIN
     -- Manejo de errores
     BEGIN TRY
         -- Crear una tabla TEMPORAL para almacenar los datos del archivo Excel
+		DECLARE @tipoCambio DECIMAL(10, 4);
+
+		EXEC Services.ObtenerTipoCambioUsdToArs @tipoCambio OUTPUT;
+
         CREATE TABLE #temporal (
             Product NVARCHAR(MAX) NOT NULL,       -- Nombre del producto
             PrecioEnDolares NVARCHAR(MAX) NOT NULL -- Precio unitario (como NVARCHAR para manejar errores)
@@ -114,7 +121,7 @@ BEGIN
         SELECT 
             'Electronicos' AS Categoria,
             Product AS NombreProducto,
-			0 as PrecioUnitario,
+			TRY_CAST(PrecioEnDolares AS DECIMAL(10, 2)) * @tipoCambio AS PrecioUnitario,
             TRY_CAST(PrecioEnDolares AS DECIMAL(10, 2)) AS PrecioUnitarioUsd,
             GETDATE() AS Fecha
         FROM (
@@ -220,11 +227,15 @@ END;
 GO
 
 
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDatosG12-main\Productos\catalogo.csv'
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDatosG12-main\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDatosG12-main\Productos\Productos_importados.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
 GO
+
+SELECT * FROM Supermercado.Producto
+
+

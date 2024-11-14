@@ -46,7 +46,12 @@ BEGIN
                 ROW_NUMBER() OVER (PARTITION BY direccion ORDER BY ReemplazoCiudad) AS RowNum
             FROM #temporal
         ) AS subquery
-        WHERE RowNum = 1
+        WHERE RowNum = 1 AND 
+		NOT EXISTS (
+                SELECT 1 
+                FROM Supermercado.Sucursal s
+                WHERE s.Direccion = subquery.direccion
+        );
 
         -- Limpiar la tabla temporal
         DROP TABLE #temporal;
@@ -63,8 +68,6 @@ BEGIN
     END CATCH;
 END;
 GO
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CREATE OR ALTER PROCEDURE Supermercado.InsertarEmpleados --solo el admin por logica
     @rutaArchivo NVARCHAR(MAX)
@@ -109,23 +112,34 @@ BEGIN
 
         EXEC sp_executesql @sql;
 
-        -- Inserción en Supermercado.Empleado
-        INSERT INTO Supermercado.Empleado (Legajo, Nombre, Apellido, Dni, Direccion, Email, EmailEmpresa, cargo, SucursalID, Turno)
+        -- Inserción en Supermercado.Empleado, eliminando duplicados por Dirección y Legajo
+        INSERT INTO Supermercado.Empleado (Legajo, Nombre, Apellido, DNI, Direccion, Email, EmailEmpresa, Cargo, SucursalID, Turno)
         SELECT  
-            t.Legajo,
-            t.Nombre,
-            t.Apellido,
-            t.DNI,
-            t.Direccion,
-            t.Email,
-            t.EmailEmpresa,
-            t.Cargo,
+            subquery.Legajo,
+            subquery.Nombre,
+            subquery.Apellido,
+            subquery.DNI,
+            subquery.Direccion,
+            subquery.Email,
+            subquery.EmailEmpresa,
+            subquery.Cargo,
             s.SucursalID,
-            t.Turno
-        FROM 
-            #temporal t
+            subquery.Turno
+        FROM (
+            SELECT 
+                *,
+                ROW_NUMBER() OVER (PARTITION BY Direccion ORDER BY Sucursal) AS RowNum
+            FROM #temporal
+        ) AS subquery
         JOIN 
-            Supermercado.Sucursal s ON t.Sucursal = s.Ciudad;
+            Supermercado.Sucursal s ON subquery.Sucursal = s.Ciudad
+        WHERE 
+            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Dirección
+            AND NOT EXISTS (
+                SELECT 1 
+                FROM Supermercado.Empleado e 
+                WHERE e.Legajo = subquery.Legajo
+            );
 
         -- Limpiar la tabla temporal al final
         DROP TABLE #temporal;
@@ -142,8 +156,6 @@ BEGIN
     END CATCH;
 END;
 GO
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CREATE OR ALTER PROCEDURE Supermercado.InsertarEmpleadosEncriptado --solo el admin por logica
     @rutaArchivo NVARCHAR(MAX),
@@ -216,7 +228,12 @@ BEGIN
         FROM 
             #temporal t
         JOIN 
-            Supermercado.Sucursal s ON t.Sucursal = s.Ciudad;
+            Supermercado.Sucursal s ON t.Sucursal = s.Ciudad
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Supermercado.Empleado e 
+            WHERE e.Legajo = t.Legajo
+        );
 
         -- Limpiar la tabla temporal al final
         DROP TABLE #temporal;
@@ -233,9 +250,6 @@ BEGIN
     END CATCH;
 END;
 GO
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 CREATE OR ALTER PROCEDURE Ventas.InsertarMediosPago
     @rutaArchivo NVARCHAR(MAX)
@@ -257,7 +271,7 @@ BEGIN
                 F2 AS MedioPagoName
             FROM OPENROWSET(
                 ''Microsoft.ACE.OLEDB.12.0'', 
-                ''Excel 12.0 Xml;HDR=YES;Database=' + @rutaArchivo + ''', 
+                ''Excel 12.0 Xml;HDR=NO;Database=' + @rutaArchivo + ''', 
                 ''SELECT * FROM [medios de pago$B3:C]''  -- Aquí se ajusta el rango
             ) AS ExcelData';
 
@@ -267,7 +281,12 @@ BEGIN
         -- Insertar los datos de la tabla temporal en la tabla principal Ventas.MediosPago
         INSERT INTO Ventas.MediosPago (MedioPagoName, Descripcion)
         SELECT MedioPagoName, Descripcion
-        FROM #temporal;
+        FROM #temporal
+		WHERE NOT EXISTS (
+            SELECT 1
+            FROM Ventas.MediosPago
+            WHERE Ventas.MediosPago.MedioPagoName = #temporal.MedioPagoName
+        );
 
         -- Limpiar la tabla temporal al final
         DROP TABLE #temporal;
@@ -285,7 +304,11 @@ BEGIN
 END;
 GO
 
+exec Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+GO
 
-exec Supermercado.InsertarSucursales 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Informacion_complementaria.xlsx'
-exec Supermercado.InsertarEmpleados 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Informacion_complementaria.xlsx'
-exec Ventas.InsertarMediosPago 'C:\Users\marin\Desktop\BBDD\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Supermercado.InsertarEmpleados 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+GO
+
+exec Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+GO

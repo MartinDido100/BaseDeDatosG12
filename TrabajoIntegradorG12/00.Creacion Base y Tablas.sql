@@ -13,6 +13,12 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Services')
+BEGIN
+    EXEC('CREATE SCHEMA Services');
+END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Ventas')
 BEGIN
     EXEC('CREATE SCHEMA Ventas');
@@ -53,7 +59,8 @@ BEGIN
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Empleado') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Empleado (
-            Legajo INT PRIMARY KEY,
+			EmpleadoID INT PRIMARY KEY IDENTITY(1,1),
+            Legajo INT UNIQUE,
             Nombre VARCHAR(100) NOT NULL,
             Apellido VARCHAR(100) NOT NULL,
 			Dni INT NOT NULL,
@@ -106,7 +113,7 @@ BEGIN
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.MediosPago') AND type IN (N'U'))
     BEGIN
 		CREATE TABLE Ventas.MediosPago (
-			IdMedioPago INT IDENTITY(1,1),
+			IdMedioPago INT PRIMARY KEY IDENTITY(1,1),
 			MedioPagoName VARCHAR(50),
 			Descripcion VARCHAR(255)
 		);
@@ -127,14 +134,14 @@ BEGIN
             Cantidad INT,
             Fecha DATE NOT NULL,
             Hora TIME NOT NULL,
-            MedioPago VARCHAR(50) NOT NULL,
+            MedioPago INT NOT NULL,
             Empleado INT NOT NULL,
 			Cliente INT NOT NULL,
             IdentificadorPago VARCHAR(50) NULL
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(Legajo),
 			FOREIGN KEY (FacturaNC) REFERENCES Ventas.Factura(IDFactura),
 			FOREIGN KEY (Producto) REFERENCES Supermercado.Producto(ProductoID),
-			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(MedioPagoName),
+			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
 			FOREIGN KEY (Cliente) REFERENCES Supermercado.Cliente(ClienteID),
 			FOREIGN KEY (Sucursal) REFERENCES Supermercado.Sucursal(SucursalID)
         );
