@@ -40,17 +40,17 @@
           <AssociatedConnUserName />
           <FullPath>02.ImportarArchivosSupermercado.sql</FullPath>
         </FileNode>
-        <FileNode Name="03.ImportarArchivosProductos.sql">
+        <FileNode Name="03.APIService.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>03.ImportarArchivosProductos.sql</FullPath>
+          <FullPath>03.APIService.sql</FullPath>
         </FileNode>
-        <FileNode Name="04.ImportarArchivosVentas.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+        <FileNode Name="04.ImportarArchivosProductos.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>04.ImportarArchivosVentas.sql</FullPath>
+          <FullPath>04.ImportarArchivosProductos.sql</FullPath>
         </FileNode>
         <FileNode Name="05.ConsultaSimple.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
@@ -58,11 +58,11 @@
           <AssociatedConnUserName />
           <FullPath>05.ConsultaSimple.sql</FullPath>
         </FileNode>
-        <FileNode Name="APIService.sql">
+        <FileNode Name="06.ImportarArchivosVentas.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>APIService.sql</FullPath>
+          <FullPath>06.ImportarArchivosVentas.sql</FullPath>
         </FileNode>
         <FileNode Name="Borrado(opcional).sql">
           <AssociatedConnectionMoniker />
