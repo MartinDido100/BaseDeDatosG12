@@ -31,6 +31,12 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Reporte')
+BEGIN
+    EXEC('CREATE SCHEMA Reporte');
+END
+GO
+
 CREATE OR ALTER PROCEDURE Supermercado.crearTablas
 AS
 BEGIN
@@ -45,7 +51,8 @@ BEGIN
 			Ciudad varchar(50),
 			Direccion varchar(200),
 			Horario varchar(100),
-            Telefono VARCHAR(30)
+            Telefono VARCHAR(30),
+			CiudadFake VARCHAR(50)
         );
     END
 
@@ -141,7 +148,7 @@ BEGIN
             Empleado INT NOT NULL,
 			Cliente INT NOT NULL,
             IdentificadorPago VARCHAR(50) NULL,
-			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(Legajo),
+			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(EmpleadoID),
 			FOREIGN KEY (FacturaNC) REFERENCES Ventas.Factura(IDFactura),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
 			FOREIGN KEY (Cliente) REFERENCES Supermercado.Cliente(ClienteID),

@@ -31,15 +31,17 @@ BEGIN
         EXEC sp_executesql @sql;
 
         -- Insertar los datos únicos en la tabla definitiva Supermercado.Producto
-        INSERT INTO Supermercado.Sucursal (Ciudad,Direccion,Horario,Telefono)
+        INSERT INTO Supermercado.Sucursal (Ciudad,Direccion,Horario,Telefono,CiudadFake)
         SELECT  
 			ReemplazoCiudad as Ciudad,
 			direccion AS Direccion,
 			horario AS horario,
-            telefono AS Telefono
+            telefono AS Telefono,
+			Ciudad AS CiudadFake
         FROM (
             SELECT 
                 ReemplazoCiudad,
+				Ciudad,
                 direccion,
 				horario,
 				telefono,

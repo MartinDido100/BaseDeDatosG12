@@ -24,7 +24,7 @@ BEGIN
             FROM ''' + @rutaArchivo + '''
             WITH (
                 FORMAT = ''CSV'',
-                CODEPAGE = ''1200'', -- UTF-16 LE
+                CODEPAGE = ''1200'',
                 FIRSTROW = 2,
                 FIELDTERMINATOR = '','',
                 ROWTERMINATOR = ''0x0A'',

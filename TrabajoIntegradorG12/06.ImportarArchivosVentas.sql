@@ -8,7 +8,6 @@ BEGIN
     -- Manejo de errores
     BEGIN TRY
         -- Crear una tabla TEMPORAL para almacenar los datos del archivo CSV
-    
         CREATE TABLE #temp (
             nroFactura VARCHAR(50),
             TipoFactura VARCHAR(20),
@@ -30,44 +29,93 @@ BEGIN
             BULK INSERT #temp
             FROM ''' + @rutaArchivo + '''
             WITH (
-                format =''CSV'',
-				CODEPAGE = ''1200'',-- UTF-16 LE
-				FIRSTROW = 2,
-				FIELDTERMINATOR = '';'',
-				ROWTERMINATOR = ''0x0A'',
-				FIELDQUOTE =''"''
+                FORMAT = ''CSV'',
+                CODEPAGE = ''1200'', -- UTF-16 LE
+                FIRSTROW = 2,
+                FIELDTERMINATOR = '';'',
+                ROWTERMINATOR = ''0x0A'',
+                FIELDQUOTE = ''"'' 
             );
         ';
 
         -- Ejecutar el BULK INSERT de manera dinámica
         EXEC sp_executesql @sql;
 
-        -- Insertar los datos en la tabla definitiva Supermercado.Ventas con conversión de tipos
-        INSERT INTO Ventas.Factura ( nroFactura,TipoFactura,Ciudad, TipoCliente, Genero, Producto,
-										PrecioUnitario, Cantidad, Fecha, Hora, MedioPago, Empleado, IdentificadorPago)
-		SELECT
-			t.nroFactura,
-			t.TipoFactura, 
-			t.Ciudad, 
-			t.TipoCliente, 
-			t.Genero,
-			p.ProductoID,
-			TRY_CAST(t.PrecioUnitario AS DECIMAL(10, 2)),
-			TRY_CAST(t.Cantidad AS INT),
-			TRY_CAST(t.Fecha AS DATE),
-			TRY_CAST(t.Hora AS TIME),
-			t.MedioPago,
-			TRY_CAST(t.Empleado AS INT),
-			NULLIF(t.IdentificadorPago, '--') AS IdentificadorPago
-		FROM #temp t
-		LEFT JOIN Supermercado.Producto p
-			ON p.NombreProducto = t.Producto
-        WHERE
-            TRY_CAST(t.PrecioUnitario AS DECIMAL(10, 2)) IS NOT NULL AND
-            TRY_CAST(t.Cantidad AS INT) IS NOT NULL AND
-            TRY_CAST(t.Fecha AS DATE) IS NOT NULL AND
-            TRY_CAST(t.Hora AS TIME) IS NOT NULL AND
-            TRY_CAST(t.Empleado AS INT) IS NOT NULL;
+        DECLARE @FacturaID INT;
+
+        -- Cursor para recorrer los registros de la tabla temporal
+        DECLARE cursor_facturas CURSOR FOR 
+        SELECT * FROM #temp;
+
+        OPEN cursor_facturas;
+
+        DECLARE @nroFactura VARCHAR(50),
+                @TipoFactura VARCHAR(20),
+                @Ciudad VARCHAR(50),
+                @TipoCliente VARCHAR(50),
+                @Genero VARCHAR(50),
+                @Producto VARCHAR(200),
+                @PrecioUnitario DECIMAL(10, 2),
+                @Cantidad INT,
+                @Fecha DATE,
+                @Hora TIME,
+                @MedioPago VARCHAR(50),
+                @Empleado INT,
+                @IdentificadorPago VARCHAR(50);
+
+        FETCH NEXT FROM cursor_facturas INTO @nroFactura, @TipoFactura, @Ciudad, @TipoCliente, @Genero, @Producto, @PrecioUnitario, @Cantidad, @Fecha, @Hora, @MedioPago, @Empleado, @IdentificadorPago;
+
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            IF EXISTS (SELECT 1 FROM Supermercado.Empleado WHERE Legajo = @Empleado)
+            BEGIN
+
+                IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
+                BEGIN
+                    -- Crear la factura si no existe
+                    INSERT INTO Ventas.Factura (nroFactura, TipoFactura, sucursalID, Fecha, Hora, MedioPago, Empleado, Cliente, IdentificadorPago)
+                    VALUES (
+                        @nroFactura, 
+                        @TipoFactura, 
+                        (SELECT SucursalID FROM Supermercado.Sucursal WHERE CiudadFake = @Ciudad), -- Asigna sucursalID desde el Empleado
+                        @Fecha, 
+                        @Hora, 
+                        (SELECT IdMedioPago FROM Ventas.MediosPago WHERE Descripcion = @MedioPago), 
+                        (SELECT EmpleadoID FROM Supermercado.Empleado WHERE Legajo = @Empleado), -- Asigna EmpleadoID, no Legajo
+                        2, -- Asigna aquí ClienteID según la lógica deseada
+                        @IdentificadorPago
+                    );
+
+                    SET @FacturaID = SCOPE_IDENTITY(); -- Captura el ID de la factura insertada
+				END
+                ELSE
+				BEGIN
+					 SELECT @FacturaID = IDFactura FROM Ventas.Factura WHERE nroFactura = @nroFactura;
+				END
+
+                -- Insertar la Línea de Factura
+				INSERT INTO Ventas.LineaFactura (Cantidad, ProductoID, FacturaID, Subtotal)
+				SELECT 
+					@Cantidad, 
+					(SELECT ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto), 
+					@FacturaID, 
+					@PrecioUnitario * @Cantidad
+					WHERE NOT EXISTS (
+						SELECT 1
+						FROM Ventas.LineaFactura
+						WHERE FacturaID = @FacturaID
+						AND ProductoID = (SELECT ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto)
+					);
+            END
+
+            FETCH NEXT FROM cursor_facturas INTO @nroFactura, @TipoFactura, @Ciudad, @TipoCliente, @Genero, @Producto, @PrecioUnitario, @Cantidad, @Fecha, @Hora, @MedioPago, @Empleado, @IdentificadorPago;
+        END
+
+        CLOSE cursor_facturas;
+        DEALLOCATE cursor_facturas;
+
+        -- Limpiar la tabla temporal después de usarla
+        DROP TABLE #temp;
 
     END TRY
     BEGIN CATCH
@@ -75,7 +123,6 @@ BEGIN
         PRINT 'Error al insertar los datos en la tabla Ventas.Factura.';
         PRINT ERROR_MESSAGE();
     END CATCH;
-	DROP TABLE #temp;
 END;
 GO
 
