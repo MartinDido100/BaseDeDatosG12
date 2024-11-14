@@ -27,19 +27,14 @@ BEGIN
         RETURN;
     END
 
-    -- Configurar los encabezados de la solicitud HTTP
     EXEC sp_OAMethod @obj, 'setRequestHeader', NULL, 'Content-Type', 'application/json';
 
-    -- Abrir la conexión HTTP
     EXEC sp_OAMethod @obj, 'open', NULL, 'GET', 'https://api.exchangerate-api.com/v4/latest/USD', 'false'; 
     
-    -- Enviar la solicitud
     EXEC sp_OAMethod @obj, 'send';
 
-    -- Obtener el código de estado HTTP
     EXEC sp_OAMethod @obj, 'status', @status OUT;
 
-    -- Obtener el JSON de la respuesta
     EXEC sp_OAMethod @obj, 'responseText', @jsonResponse OUT;
 
     EXEC sp_OADestroy @obj;
@@ -49,7 +44,6 @@ BEGIN
     )
     SELECT @tipoCambio = TipoCambioUsdToArs FROM JSONData;
 
-    -- Devolver el tipo de cambio
     SELECT @tipoCambio AS TipoCambio;
 	
 END;

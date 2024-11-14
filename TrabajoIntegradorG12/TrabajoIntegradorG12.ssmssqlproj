@@ -3,46 +3,46 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="MARTIN:MARTIN\marin">
-          <Created>2024-11-13T15:03:12.1144091-03:00</Created>
+        <ConnectionNode Name="DESKTOP-O7U17UT:DESKTOP-O7U17UT\marti">
+          <Created>2024-11-13T15:29:11.0803367-03:00</Created>
           <Type>SQL</Type>
-          <Server>MARTIN</Server>
+          <Server>DESKTOP-O7U17UT</Server>
           <UserName />
           <Authentication>Windows Authentication</Authentication>
           <InitialDB />
           <LoginTimeout>30</LoginTimeout>
-          <TrustServerCertificate>True</TrustServerCertificate>
+          <TrustServerCertificate>False</TrustServerCertificate>
           <HostNameInServerCertificate />
           <EncryptionOption>False</EncryptionOption>
           <ExecutionTimeout>0</ExecutionTimeout>
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
-          <ApplicationName />
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
         </ConnectionNode>
       </Items>
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
         <FileNode Name="00.Creacion Base y Tablas.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>00.Creacion Base y Tablas.sql</FullPath>
         </FileNode>
         <FileNode Name="01.CreacionDeUsers.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>01.CreacionDeUsers.sql</FullPath>
         </FileNode>
         <FileNode Name="02.ImportarArchivosSupermercado.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>02.ImportarArchivosSupermercado.sql</FullPath>
         </FileNode>
         <FileNode Name="03.ImportarArchivosProductos.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:MARTIN:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>MARTIN</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>03.ImportarArchivosProductos.sql</FullPath>
         </FileNode>
@@ -53,10 +53,16 @@
           <FullPath>04.ImportarArchivosVentas.sql</FullPath>
         </FileNode>
         <FileNode Name="05.ConsultaSimple.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>05.ConsultaSimple.sql</FullPath>
+        </FileNode>
+        <FileNode Name="APIService.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>APIService.sql</FullPath>
         </FileNode>
         <FileNode Name="Borrado(opcional).sql">
           <AssociatedConnectionMoniker />
@@ -65,8 +71,8 @@
           <FullPath>Borrado(opcional).sql</FullPath>
         </FileNode>
         <FileNode Name="Consultas.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Consultas.sql</FullPath>
         </FileNode>
