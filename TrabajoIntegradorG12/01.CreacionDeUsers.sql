@@ -10,35 +10,11 @@ CREATE USER mateo FOR LOGIN messi;
 
 -- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
 ALTER SERVER ROLE sysadmin ADD MEMBER fabricio;
-
--- Confirmaci�n de la creaci�n
-PRINT 'El usuario fabricio ha sido creado con permisos de administrador';
-
-
-
------------------------------------SUPERVISOR------------------------------------------------------------
--- Crear login para 'martin'
-CREATE LOGIN martin WITH PASSWORD = 'tincho32';
-
--- Usar la base de datos 'Com5600G12'
-USE Com5600G12;
-
--- Crear el usuario 'martin' en la base de datos 'Com5600G12'
-CREATE USER martin FOR LOGIN martin;
-
--- Asignar el rol 'Supervisor' al usuario 'martin'
-EXEC sp_addrolemember 'Empleado', 'martin';
-
-PRINT 'Usuario "martin" creado exitosamente con el rol Supervisor.';
 --------------------------------------------------------------------------------
 
 
-
-SELECT * FROM Supermercado.Sucursal
-
-
 USE Com5600G12
-
+GO
 
 
 CREATE OR ALTER PROCEDURE Supervisor.CrearRolesConPermisos --CREO LOS ROLES EXISTENTES EN MI BD
@@ -187,14 +163,23 @@ GO
 
 
 
-EXEC Autenticacion.CrearRolesConPermisos
-EXEC Autenticacion.CrearLoginUserEmpleado 'soymessi','contraseña'
-EXEC Autenticacion.CrearLoginUserSupervisor 'mbappe','contraseña'
+EXEC Supervisor.CrearRolesConPermisos
+EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
+EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
 
 
-USE MASTER
-CREATE LOGIN BDLOCO
-WITH PASSWORD ='SANLORENZO'
+-----------------------------------SUPERVISOR------------------------------------------------------------
+-- Crear login para 'martin'
+CREATE LOGIN martin WITH PASSWORD = 'tincho32';
 
-USE Com5600G12 
-CREATE USER LOCOLOCOs FOR LOGIN BDLOCO
+-- Usar la base de datos 'Com5600G12'
+USE Com5600G12;
+GO
+
+
+-- Crear el usuario 'martin' en la base de datos 'Com5600G12'
+CREATE USER martin FOR LOGIN martin;
+
+-- Asignar el rol 'Supervisor' al usuario 'martin'
+EXEC sp_addrolemember 'Empleado', 'martin';
+

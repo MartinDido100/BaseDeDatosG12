@@ -1,3 +1,6 @@
+USE Com5600G12
+GO
+
 sp_configure 'show advanced options', 1;
 GO
 

@@ -31,9 +31,6 @@ BEGIN
 END
 GO
 
-
-USE Com5600G12
-
 CREATE OR ALTER PROCEDURE Supermercado.crearTablas
 AS
 BEGIN

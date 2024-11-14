@@ -39,7 +39,6 @@ BEGIN
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT 
             category AS Categoria,
-            -- Aquí reemplazamos '?' por 'ñ' en la columna name (NombreProducto)
             REPLACE(name, N'?', N'ñ') AS NombreProducto,
             TRY_CAST(price AS DECIMAL(10, 2)) AS PrecioUnitario,
             TRY_CAST(reference_price AS DECIMAL(10, 2)) AS PrecioReferencia,
@@ -226,16 +225,13 @@ BEGIN
 END;
 GO
 
-
 EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
 GO
 
 EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
 GO
-
-SELECT * FROM Supermercado.Producto
 
 

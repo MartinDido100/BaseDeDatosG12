@@ -305,31 +305,14 @@ BEGIN
 END;
 GO
 
-exec Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
-SELECT * 
-FROM
-Supermercado.Sucursal
-
-
-exec Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Supermercado.InsertarEmpleados 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
-SELECT * 
-FROM
-Supermercado.Empleado
-
-
-
-
-
-SELECT * 
-FROM
-Supermercado.EmpleadoEncriptado
-
-exec Supermercado.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
+exec Supervisor.InsertarEmpleadosEncriptado 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx','contraseña'
 GO
 
-exec Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+exec Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
