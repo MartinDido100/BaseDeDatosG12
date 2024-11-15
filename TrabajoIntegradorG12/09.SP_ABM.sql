@@ -234,7 +234,7 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Ventas.CrearLineaProducto
+CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura
     @FacturaID INT,
     @ProductoID INT,
     @Cantidad INT,
