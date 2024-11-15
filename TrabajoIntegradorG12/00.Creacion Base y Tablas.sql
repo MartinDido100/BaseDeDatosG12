@@ -49,9 +49,6 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Supermercado.crearTablas
-AS
-BEGIN
 
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Sucursal') AND type IN (N'U'))
     BEGIN
@@ -172,7 +169,6 @@ BEGIN
 			FOREIGN KEY (FacturaID) REFERENCES Ventas.Factura(IDFactura)
         );
     END
-END;
 GO
 
 EXEC Supermercado.crearTablas;
