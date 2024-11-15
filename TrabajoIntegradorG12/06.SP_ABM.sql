@@ -45,10 +45,10 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
     BEGIN
         INSERT INTO Ventas.Factura (
-            nroFactura, TipoFactura, sucursalID, Cliente, 
+            nroFactura, TipoFactura, sucursalID, 
             Fecha, Hora, MedioPago, Empleado)
         VALUES (
-            @nroFactura, @TipoFactura, @Sucursal, @Cliente, @Fecha, @Hora, @MedioPago, @Empleado);
+            @nroFactura, @TipoFactura, @Sucursal, @Fecha, @Hora, @MedioPago, @Empleado);
     END
     ELSE
     BEGIN
@@ -164,15 +164,15 @@ CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura
     @FacturaID INT,
     @ProductoID INT,
     @Cantidad INT,
-    @Subtotal DECIMAL(10, 2)
+    @PrecioU DECIMAL(10, 2)
 AS
 BEGIN
     BEGIN TRY
         IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE IDFactura = @FacturaID)
-           AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
+           
         BEGIN
-            INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, Subtotal)
-            VALUES (@FacturaID, @ProductoID, @Cantidad, @Subtotal);
+            INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, PrecioU)
+            VALUES (@FacturaID, @ProductoID, @Cantidad, @PrecioU);
             PRINT 'Línea de producto creada exitosamente.';
         END
         ELSE

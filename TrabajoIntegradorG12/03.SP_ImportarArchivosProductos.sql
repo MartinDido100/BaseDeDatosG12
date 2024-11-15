@@ -71,7 +71,6 @@ BEGIN
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT
 			(SELECT ID FROM Supermercado.Categoria WHERE Descripcion = category) AS Categoria,
-            category AS Categoria,
             REPLACE(name, N'?', N'ñ') AS NombreProducto,
             TRY_CAST(price AS DECIMAL(10, 2)) AS PrecioUnitario,
             TRY_CAST(reference_price AS DECIMAL(10, 2)) AS PrecioReferencia,

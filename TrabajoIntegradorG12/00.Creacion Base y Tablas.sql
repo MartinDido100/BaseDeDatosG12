@@ -122,11 +122,9 @@ GO
             Hora TIME NOT NULL,
             MedioPago INT NOT NULL,
             Empleado INT NOT NULL,
-			Cliente INT NOT NULL,
             IdentificadorPago VARCHAR(50) NULL,
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(EmpleadoID),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
-			FOREIGN KEY (Cliente) REFERENCES Supermercado.Cliente(ClienteID),
 			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
         );
     END
@@ -138,13 +136,13 @@ GO
 			Cantidad INT NOT NULL,
 			ProductoID INT NOT NULL,
 			FacturaID INT NOT NULL,
-			Subtotal DECIMAL(10,2) NOT NULL,
+			PrecioU DECIMAL(10,2) NOT NULL,
 			FOREIGN KEY (ProductoID) REFERENCES Supermercado.Producto(ProductoID),
 			FOREIGN KEY (FacturaID) REFERENCES Ventas.Factura(IDFactura)
         );
     END
 
-	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.LineaFactura') AND type IN (N'U'))
+	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Categoria') AND type IN (N'U'))
     BEGIN
 		CREATE TABLE Supermercado.Categoria (
 			ID INT PRIMARY KEY IDENTITY(1,1),

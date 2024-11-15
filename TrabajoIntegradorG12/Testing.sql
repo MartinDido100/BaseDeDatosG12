@@ -6,43 +6,36 @@ USE Com5600G12;
 GO
 
 --2 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 -- 3
-EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 
 --4
-EXEC Supermercado.InsertarCategorias 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarCategorias 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 
 -- 5
-EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
+EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 
 --6 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\catalogo.csv'
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\Productos_importados.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\Productos_importados.xlsx'
 GO
 
--- Insertar un nuevo cliente
-EXEC Supermercado.InsertarNuevoCliente 
-    @NombreCliente = 'Juan Perez',
-    @CiudadCliente = 'Montevideo',
-    @TipoCliente = 'Mayorista',
-    @Genero = 'M';
 
-SELECT * FROM Supermercado.Cliente
+
 
 --6 Importacion de facturas
-EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Ventas_registradas.csv'
+EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Ventas_registradas.csv'
 GO
-
 
 --8 Scripts varios y comunes (ejecutar en cualquier orden)
 
@@ -103,11 +96,14 @@ EXEC Supermercado.InsertarNuevoProducto
 --Borrado logico de producto
 EXEC Supermercado.EliminarProducto @ProductoID = 1;
 
---Crear linea de factura
-EXEC Ventas.CrearLineaFactura @FacturaID = 3347, @ProductoID = 1, @Cantidad = 5, @Subtotal = 150.00;
 
---Crear linea de factura erronea
-EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5, @Subtotal = 150.00;
+select * from Ventas.Factura
+select * from Supermercado.Producto
+--Crear linea de factura
+EXEC Ventas.CrearLineaFactura @FacturaID = 1, @ProductoID = 1, @Cantidad = 5, @PrecioU = 150.00;
+
+--Crear linea de factura inexistente
+EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5, @PrecioU = 150.00;
 
 -- Pagar factura
 EXEC Ventas.PagarFactura @IDFactura = 3347, @IdentificadorPago = 'ABCD1234';

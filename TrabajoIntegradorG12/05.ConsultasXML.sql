@@ -16,7 +16,7 @@ BEGIN
     SELECT 
         DATENAME(WEEKDAY, f.Fecha) AS "DiaSemana",         
         DATEPART(WEEKDAY, f.Fecha) AS "NumeroDiaSemana",   
-        SUM(l.Subtotal) AS "TotalFacturado"
+        SUM(l.PrecioU * l.Cantidad) AS "TotalFacturado"
     INTO #TempReport
     FROM 
         Ventas.Factura f
@@ -97,7 +97,7 @@ BEGIN
             WHEN DATEPART(HOUR, f.Hora) >= 15 AND DATEPART(HOUR, f.Hora) < 21 THEN 'Turno Tarde'
             ELSE 'Fuera de Turno'
         END AS Turno,
-        SUM(l.Subtotal) AS TotalFacturado
+        SUM(l.PrecioU * l.Cantidad) AS TotalFacturado
     INTO #TempReport
     FROM 
         Ventas.Factura f

@@ -106,7 +106,7 @@ BEGIN
 
                 IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
                 BEGIN
-                    INSERT INTO Ventas.Factura (nroFactura, TipoFactura, sucursalID, Fecha, Hora, MedioPago, Empleado, Cliente, IdentificadorPago)
+                    INSERT INTO Ventas.Factura (nroFactura, TipoFactura, sucursalID, Fecha, Hora, MedioPago, Empleado, IdentificadorPago)
                     VALUES (
                         @nroFactura, 
                         @TipoFactura, 
@@ -115,7 +115,6 @@ BEGIN
                         @Hora, 
                         (SELECT IdMedioPago FROM Ventas.MediosPago WHERE Descripcion = @MedioPago), 
                         (SELECT EmpleadoID FROM Supermercado.Empleado WHERE Legajo = @Empleado), -- Asigna EmpleadoID, no Legajo
-                        1, -- Asigna aquí ClienteID según la lógica deseada
                         @IdentificadorPago
                     );
 
@@ -126,12 +125,12 @@ BEGIN
 					 SELECT @FacturaID = IDFactura FROM Ventas.Factura WHERE nroFactura = @nroFactura;
 				END
 
-				INSERT INTO Ventas.LineaFactura (Cantidad, ProductoID, FacturaID, Subtotal)
+				INSERT INTO Ventas.LineaFactura (Cantidad, ProductoID, FacturaID, PrecioU)
 				SELECT 
 					@Cantidad, 
 					(SELECT ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto), 
 					@FacturaID, 
-					@PrecioUnitario * @Cantidad
+					@PrecioUnitario 
 					WHERE NOT EXISTS (
 						SELECT 1
 						FROM Ventas.LineaFactura
