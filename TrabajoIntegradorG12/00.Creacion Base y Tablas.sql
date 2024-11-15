@@ -37,12 +37,6 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Supervisor')
-BEGIN
-    EXEC('CREATE SCHEMA Supervisor');
-END
-GO
-
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Reporte')
 BEGIN
     EXEC('CREATE SCHEMA Reporte');
@@ -90,24 +84,6 @@ GO
             FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
         );
     END
-
-	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.EmpleadoEncriptado') AND type IN (N'U'))
-	BEGIN
-		CREATE TABLE Supermercado.EmpleadoEncriptado (
-			EmpleadoID INT PRIMARY KEY IDENTITY(1,1),
-            Legajo INT UNIQUE,
-			Nombre VARBINARY(256) NOT NULL,            
-			Apellido VARBINARY(256) NOT NULL,          
-			Dni VARBINARY(256) NOT NULL,               
-			Direccion VARBINARY(256) NOT NULL,         
-			Email VARBINARY(256),                      
-			EmailEmpresa NVARCHAR(100),                
-			Cargo NVARCHAR(50) NOT NULL,               
-			SucursalID INT NOT NULL,
-			Turno NVARCHAR(30),                        
-			FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
-		);
-	END;
 	
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Producto') AND type IN (N'U'))
     BEGIN
@@ -141,7 +117,6 @@ GO
 			IDFactura INT PRIMARY KEY IDENTITY(1,1),
             nroFactura VARCHAR(50) UNIQUE,
             TipoFactura VARCHAR(10), --Aca puede ser factura o nota de credito
-			FacturaNC INT NULL, -- Si llega a ser nota de credito necesita estar asociada a una factura
 			sucursalID INT NOT NULL,
             Fecha DATE NOT NULL,
             Hora TIME NOT NULL,
@@ -150,7 +125,6 @@ GO
 			Cliente INT NOT NULL,
             IdentificadorPago VARCHAR(50) NULL,
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(EmpleadoID),
-			FOREIGN KEY (FacturaNC) REFERENCES Ventas.Factura(IDFactura),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
 			FOREIGN KEY (Cliente) REFERENCES Supermercado.Cliente(ClienteID),
 			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
@@ -169,6 +143,12 @@ GO
 			FOREIGN KEY (FacturaID) REFERENCES Ventas.Factura(IDFactura)
         );
     END
-GO
 
-EXEC Supermercado.crearTablas;
+	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.LineaFactura') AND type IN (N'U'))
+    BEGIN
+		CREATE TABLE Supermercado.Categoria (
+			ID INT PRIMARY KEY IDENTITY(1,1),
+			Descripcion VARCHAR(100)
+		);
+	END
+GO

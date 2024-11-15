@@ -66,6 +66,57 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROCEDURE Supermercado.InsertarCategorias
+    @rutaArchivo NVARCHAR(MAX)
+AS
+BEGIN
+    BEGIN TRY
+        CREATE TABLE #temporal (
+			LineaProducto NVARCHAR(MAX) NOT NULL,
+            Descripcion NVARCHAR(MAX) NOT NULL,
+        );
+
+		DECLARE @sql NVARCHAR(MAX) = '
+			INSERT INTO #temporal
+			SELECT *
+			FROM OPENROWSET(
+				''Microsoft.ACE.OLEDB.12.0'', 
+				''Excel 12.0 Xml;HDR=YES;Database=' + @rutaArchivo + ''', 
+				''SELECT * FROM [Clasificacion productos$]''
+			) AS ExcelData;
+		';
+
+        EXEC sp_executesql @sql;
+
+        INSERT INTO Supermercado.Categoria (Descripcion)
+        SELECT  
+			Descripcion as Descripcion,
+        FROM (
+            SELECT 
+                Descripcion,
+                ROW_NUMBER() OVER (PARTITION BY direccion ORDER BY ReemplazoCiudad) AS RowNum
+            FROM #temporal
+        ) AS subquery
+        WHERE RowNum = 1 AND 
+		NOT EXISTS (
+                SELECT 1 
+                FROM Supermercado.Categoria c
+                WHERE c.Descripcion = subquery.Descripcion
+        );
+
+        DROP TABLE #temporal;
+
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al insertar los datos en la tabla Supermercado.Producto:';
+        PRINT ERROR_MESSAGE();
+        
+        IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
+            DROP TABLE #temporal;
+    END CATCH;
+END;
+GO
+
 CREATE OR ALTER PROCEDURE Supermercado.InsertarEmpleados --solo el admin por logica
     @rutaArchivo NVARCHAR(MAX)
 AS
@@ -140,93 +191,6 @@ BEGIN
     END TRY
     BEGIN CATCH
         PRINT 'Error al insertar los datos en la tabla Supermercado.Empleado:';
-        PRINT ERROR_MESSAGE();
-        
-        IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
-            DROP TABLE #temporal;
-    END CATCH;
-END;
-GO
-
-CREATE OR ALTER PROCEDURE Supervisor.InsertarEmpleadosEncriptado --solo el Supervisor por que el solo sabe la contraseña
-    @rutaArchivo NVARCHAR(MAX),
-    @fraseClave NVARCHAR(128)
-AS
-BEGIN
-    BEGIN TRY
-        CREATE TABLE #temporal (
-            Legajo INT,
-            Nombre NVARCHAR(100),
-            Apellido NVARCHAR(100),
-            DNI INT,
-            Direccion NVARCHAR(200),
-            Email NVARCHAR(100),
-            EmailEmpresa NVARCHAR(100),
-            Cargo NVARCHAR(50),
-            Sucursal NVARCHAR(50),
-            Turno NVARCHAR(30)
-        );
-
-        DECLARE @sql NVARCHAR(MAX) = '
-            INSERT INTO #temporal (Legajo, Nombre, Apellido, DNI, Direccion, Email, EmailEmpresa, Cargo, Sucursal, Turno)
-            SELECT 
-                F1 AS Legajo,
-                F2 AS Nombre,
-                F3 AS Apellido,
-                F4 AS DNI,
-                F5 AS Direccion,
-                F6 AS Email,
-                F7 AS EmailEmpresa,
-                F9 AS Cargo,
-                F10 AS Sucursal,
-                F11 AS Turno
-            FROM OPENROWSET(
-                ''Microsoft.ACE.OLEDB.12.0'', 
-                ''Excel 12.0 Xml;HDR=NO;Database=' + @rutaArchivo + ''', 
-                ''SELECT * FROM [Empleados$]''
-            ) AS ExcelData
-            WHERE F4 IS NOT NULL'; 
-
-        EXEC sp_executesql @sql;
-
-        INSERT INTO Supermercado.EmpleadoEncriptado (
-            Legajo,
-            Nombre,
-            Apellido,
-            Dni,
-            Direccion,
-            Email,
-            EmailEmpresa,
-            Cargo,
-            SucursalID,
-            Turno
-        )
-        SELECT  
-            t.Legajo,
-            EncryptByPassPhrase(@fraseClave, t.Nombre),        
-            EncryptByPassPhrase(@fraseClave, t.Apellido),      
-            EncryptByPassPhrase(@fraseClave, CAST(t.DNI AS NVARCHAR)),  
-            EncryptByPassPhrase(@fraseClave, t.Direccion),    
-            EncryptByPassPhrase(@fraseClave, t.Email),       
-            t.EmailEmpresa,                                    
-            t.Cargo,                  
-            s.SucursalID,
-            t.Turno
-        FROM 
-            #temporal t
-        JOIN 
-            Supermercado.Sucursal s ON t.Sucursal = s.Ciudad
-		WHERE NOT EXISTS (
-            SELECT 1 
-            FROM Supermercado.EmpleadoEncriptado e 
-            WHERE e.Legajo = t.Legajo
-        );
-
-        DROP TABLE #temporal;
-
-    END TRY
-    BEGIN CATCH
-        PRINT 'Error al insertar los datos en la tabla Supermercado.EmpleadoEncriptado:';
         PRINT ERROR_MESSAGE();
         
         IF OBJECT_ID('tempdb..#temporal') IS NOT NULL

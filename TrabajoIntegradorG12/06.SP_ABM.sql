@@ -1,11 +1,6 @@
 -- Script que crea procedures con consultas comunes, como agregar datos a tablas, actualizar y eliminar
 -- El orden de ejecucion es tal cual estan desarrollados
 
--- Crear/Borar LineaProducto
--- PagarFactura
--- Borrar Empleado
--- Actualizar Producto
-
 USE Com5600G12;
 GO
 
@@ -121,76 +116,6 @@ BEGIN
 END;
 GO
 
---INSERTAR EMPLEADO ENCRIPTADO
-CREATE OR ALTER PROCEDURE Supervisor.InsertarNuevoEmpleadoEncriptado --SOLO PARA Supervisores
-    @Legajo INT,
-    @NombreEmpleado NVARCHAR(100),
-    @Apellido NVARCHAR(100),
-    @Dni INT,
-    @Direccion NVARCHAR(100),
-    @Email NVARCHAR(100),
-    @EmailEmpresa NVARCHAR(100),
-    @Cargo NVARCHAR(50),
-    @SucursalID INT,
-    @Turno NVARCHAR(30),
-    @FraseClave NVARCHAR(128)
-AS
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM Supermercado.EmpleadoEncriptado 
-        WHERE Legajo = @Legajo 
-        OR Dni = EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni))
-    )
-    BEGIN
-        INSERT INTO Supermercado.EmpleadoEncriptado (Legajo, Nombre, Apellido, Dni, Direccion, Email, EmailEmpresa, Cargo, SucursalID, Turno)
-        VALUES (
-            @Legajo,
-            EncryptByPassPhrase(@FraseClave, @NombreEmpleado),
-            EncryptByPassPhrase(@FraseClave, @Apellido),
-            EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni)),
-            EncryptByPassPhrase(@FraseClave, @Direccion),
-            EncryptByPassPhrase(@FraseClave, @Email),
-            @EmailEmpresa,  
-            @Cargo,        
-            @SucursalID,
-            @Turno
-        );
-        PRINT 'Empleado insertado exitosamente con datos encriptados.';
-    END
-    ELSE
-    BEGIN
-        PRINT 'El empleado con este Legajo o DNI ya existe y no se ha insertado.';
-    END
-END;
-GO
-
-CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
-    @FraseClave NVARCHAR(128)
-AS
-BEGIN
-    BEGIN TRY
-        SELECT 
-            Legajo,
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Nombre)) AS Nombre,
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Apellido)) AS Apellido,
-            CONVERT(INT, DecryptByPassPhrase(@FraseClave, CONVERT(VARBINARY(256), Dni))) AS DNI, 
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Direccion)) AS Direccion,
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Email)) AS Email,
-            EmailEmpresa,
-            Cargo,
-            SucursalID,
-            Turno
-        FROM 
-            Supermercado.EmpleadoEncriptado;
-    END TRY
-    BEGIN CATCH
-        PRINT 'Error al desencriptar los datos de la tabla Supermercado.EmpleadoEncriptado:';
-        PRINT ERROR_MESSAGE();
-    END CATCH;
-END;
-GO
-
 -- INSERTAR NUEVO MEDIO DE PAGO
 CREATE OR ALTER PROCEDURE Ventas.InsertarNuevoMedioPago
     @MedioPagoName VARCHAR(50),
@@ -234,6 +159,7 @@ BEGIN
 END;
 GO
 
+--INSERTAR LINEA DE FACTURA
 CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura
     @FacturaID INT,
     @ProductoID INT,
@@ -261,6 +187,7 @@ BEGIN
 END;
 GO
 
+--EMITIR FACTURA
 CREATE OR ALTER PROCEDURE Ventas.PagarFactura
     @IDFactura INT,
     @IdentificadorPago VARCHAR(100)

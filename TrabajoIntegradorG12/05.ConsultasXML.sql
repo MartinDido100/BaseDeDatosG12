@@ -404,11 +404,3 @@ BEGIN
 END;
 GO
 
-EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;
-EXEC Reporte.ReporteFacturadoPorTurnoTrimestralXML 2019,1;
-EXEC Reporte.ReporteTop5ProductosPorSemanaXML 3,2019;
-EXEC Reporte.ReporteMenosVendidosPorMesXML 3,2019;
-
-EXEC Reporte.ReporteVentasPorCiudadPorRangoDeFechasXML'2019-3-01','2019-3-31';        
-
-EXEC Reporte.ReporteVentasPorSucursalYFechaXML '2019-3-01','Ramos mejia'

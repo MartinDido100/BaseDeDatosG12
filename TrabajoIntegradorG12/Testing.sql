@@ -5,37 +5,22 @@
 USE Com5600G12;
 GO
 
---2
--- Crear login para 'martin'
-CREATE LOGIN martin WITH PASSWORD = 'tincho32';
-
--- Crear el usuario 'martin' en la base de datos 'Com5600G12'
-CREATE USER martin FOR LOGIN martin;
-
---Crear roles siendo supervisor
-EXEC Supervisor.CrearRolesConPermisos;
-
--- Asignar el rol 'Supervisor' al usuario 'martin'
-EXEC sp_addrolemember 'Empleado', 'martin';
-
---3 Execs para crear un par de logins adicionales
-EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
-EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
-
---4 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
+--2 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
 EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
-
+-- 3
 EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
-EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
+--4
+EXEC Supermercado.InsertarCategorias 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
+-- 5
 EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
---5 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
+--6 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
 EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\catalogo.csv'
 GO
 
@@ -57,14 +42,6 @@ SELECT * FROM Supermercado.Cliente
 --6 Importacion de facturas
 EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Ventas_registradas.csv'
 GO
-
---7 Generar nota de credito (Cambiar el ID de factura en caso de necesitarse)
---Factura pagada y habilitada para nota de credito
-EXEC Supervisor.GenerarNotaDeCredito 775;
-
---Factura no pagada y habilitada para nota de credito
-EXEC Supervisor.GenerarNotaDeCredito 774;
-
 
 
 --8 Scripts varios y comunes (ejecutar en cualquier orden)
@@ -114,6 +91,15 @@ EXEC Supermercado.InsertarNuevoProducto
     @PrecioReferencia = 45.00,
     @UnidadReferencia = 'Kg';
 
+-- Insertar un nuevo producto erroneo
+EXEC Supermercado.InsertarNuevoProducto
+    @Categoria = 'Alimentos',
+    @NombreProducto = 'Pan',
+    @PrecioUnitario = 50.00,
+    @PrecioUnitarioUsd = 0.25,
+    @PrecioReferencia = 45.00,
+    @UnidadReferencia = 'Kg';
+
 --Borrado logico de producto
 EXEC Supermercado.EliminarProducto @ProductoID = 1;
 
@@ -125,3 +111,13 @@ EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5,
 
 -- Pagar factura
 EXEC Ventas.PagarFactura @IDFactura = 3347, @IdentificadorPago = 'ABCD1234';
+
+
+EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;
+EXEC Reporte.ReporteFacturadoPorTurnoTrimestralXML 2019,1;
+EXEC Reporte.ReporteTop5ProductosPorSemanaXML 3,2019;
+EXEC Reporte.ReporteMenosVendidosPorMesXML 3,2019;
+
+EXEC Reporte.ReporteVentasPorCiudadPorRangoDeFechasXML'2019-3-01','2019-3-31';        
+
+EXEC Reporte.ReporteVentasPorSucursalYFechaXML '2019-3-01','Ramos mejia'
