@@ -1,15 +1,17 @@
+-- Script para borras las tablas de la base de datos
+-- ACLARACION: ESTE SCRIPT ES TOTALMENTE OPCIONAL Y SE USO SOLO PARA EL DESARROLLO DEL PROYECTO
+
 USE Com5600G12
 GO
 
 --OBJECT_ID ( 'nombre_del_objeto' , 'tipo_objeto' )
 --borro la tabla si es existe, nose si es necesario y es peligroso, es solo para hacer las pruebas en limpio, no deberia ir en el
---projecto final, ya que es peligroso
+--proyecto final, ya que es peligroso
 
 CREATE OR ALTER PROCEDURE Supervisor.borrarTablas
 AS
 BEGIN
 
-    -- Eliminar las tablas en el orden adecuado, asegurando que no haya conflictos de FK
     IF OBJECT_ID(N'Supermercado.Venta', N'U') IS NOT NULL
         DROP TABLE Ventas.Factura;
 

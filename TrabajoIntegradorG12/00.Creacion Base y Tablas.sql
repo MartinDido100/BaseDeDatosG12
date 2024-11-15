@@ -1,3 +1,15 @@
+-- Trabajo Práctico Integrador
+-- Grupo 12, Integrantes:
+-- Didolich Martin Alejandro, 43664688
+-- Martinez Fabricio Solomita, 43871283
+-- Luis Alexander Romero, 40228032
+
+-- Fecha de entrega: 15/11/2024
+-- Materia: Bases de datos aplicada, Comision 5600
+
+-- Script de generacion de esquemas y tablas
+-- Ejecutar en el orden en que estan declaradas las sentencias
+
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Com5600G12')
 BEGIN
     CREATE DATABASE Com5600G12;
@@ -41,9 +53,6 @@ CREATE OR ALTER PROCEDURE Supermercado.crearTablas
 AS
 BEGIN
 
-
-
-    -- Crear la tabla Sucursal solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Sucursal') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Sucursal (
@@ -52,23 +61,21 @@ BEGIN
 			Direccion varchar(200),
 			Horario varchar(100),
             Telefono VARCHAR(30),
-			CiudadFake VARCHAR(50)
+			CiudadFake VARCHAR(50) NULL
         );
     END
 
-    -- Crear la tabla Cliente solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Cliente') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Cliente (
             ClienteID INT PRIMARY KEY IDENTITY(1,1),
             Nombre VARCHAR(100) NOT NULL,
-            Ciudad VARCHAR(100) NOT NULL,       -- Ciudad donde reside el cliente
-            TipoCliente VARCHAR(30) NOT NULL,   -- Tipo de cliente (minorista, mayorista, etc.)
-            Genero CHAR(1),                     -- Género del cliente (opcional)
+            Ciudad VARCHAR(100) NOT NULL,    
+            TipoCliente VARCHAR(30) NOT NULL,  
+            Genero CHAR(1),
         );
     END
 
-    -- Crear la tabla Empleado solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Empleado') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Empleado (
@@ -105,8 +112,6 @@ BEGIN
 		);
 	END;
 	
-
-    -- Crear la tabla Producto solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Producto') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Producto (
@@ -119,11 +124,10 @@ BEGIN
             UnidadReferencia VARCHAR(100) NULL,
             Fecha DATETIME NOT NULL,
 			Proveedor VARCHAR(100) NULL,
+			deleted_at DATETIME NULL,
         );
     END
 
-	
-    -- Crear la tabla MediosPago solo si no existe
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.MediosPago') AND type IN (N'U'))
     BEGIN
 		CREATE TABLE Ventas.MediosPago (
@@ -171,5 +175,4 @@ BEGIN
 END;
 GO
 
--- CREAMOS TODAS LAS TABLAS SI NO ESTAN CREADAS--
 EXEC Supermercado.crearTablas;

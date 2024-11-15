@@ -1,7 +1,6 @@
 USE Com5600G12;
 GO
 
--- Calcular el total facturado por día de la semana para el mes y año especificados
 CREATE OR ALTER PROCEDURE Reporte.ReporteFacturadoPorDiaXML
     @Mes INT,
     @Anio INT
@@ -9,7 +8,6 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Obtener el total facturado por día de la semana en el mes y año especificados
     SELECT 
         DATENAME(WEEKDAY, f.Fecha) AS "DiaSemana",         -- Nombre del día
         DATEPART(WEEKDAY, f.Fecha) AS "NumeroDiaSemana",   -- Número del día para ordenar

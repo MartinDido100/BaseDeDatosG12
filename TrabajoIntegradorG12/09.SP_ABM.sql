@@ -1,3 +1,11 @@
+-- Script que crea procedures con consultas comunes, como agregar datos a tablas, actualizar y eliminar
+-- El orden de ejecucion es tal cual estan desarrollados
+
+-- Crear/Borar LineaProducto
+-- PagarFactura
+-- Borrar Empleado
+-- Actualizar Producto
+
 USE Com5600G12;
 GO
 
@@ -11,10 +19,8 @@ CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevoProducto
     @UnidadReferencia VARCHAR(100)
 AS
 BEGIN
-    -- Verificar si el NombreProducto ya existe en la tabla
-    IF NOT EXISTS (SELECT 1 FROM Supermercado.Producto WHERE NombreProducto = @NombreProducto)
+    IF NOT EXISTS (SELECT 1 FROM Supermercado.Producto WHERE NombreProducto = @NombreProducto AND deleted_at IS NULL)
     BEGIN
-        -- Insertar solo si el producto no existe
         DECLARE @FechaActual DATETIME;
         SET @FechaActual = GETDATE();
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
@@ -22,40 +28,32 @@ BEGIN
     END
     ELSE
     BEGIN
-        PRINT 'El producto ya existe y no se ha insertado.';
+        PRINT 'El producto ya existe o fue borrado';
     END
 END;
 GO
 
-
-
 -- INSERTAR UNA NUEVA FACTURA
-CREATE OR ALTER PROCEDURE Ventas.InsertarNuevaFactura
+CREATE OR ALTER PROCEDURE Ventas.CrearFactura
     @nroFactura VARCHAR(50),
     @TipoFactura VARCHAR(10),
-    @FacturaNC INT, -- Cambiado de IDFacturaNC a FacturaNC
     @Sucursal INT,
     @Cliente INT,
-    @Producto INT,
-    @Cantidad INT,
     @Hora TIME,
-    @MedioPago VARCHAR(50),
-    @Empleado INT,
-    @IdentificadorPago VARCHAR(50)
+    @MedioPago INT,
+    @Empleado INT
 AS
 BEGIN
-    -- Declaración de la fecha con tipo de datos DATETIME
     DECLARE @Fecha DATETIME;
     SET @Fecha = GETDATE();
     
     IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
     BEGIN
         INSERT INTO Ventas.Factura (
-            nroFactura, TipoFactura, FacturaNC, Sucursal, Cliente, Producto, 
-            Cantidad, Fecha, Hora, MedioPago, Empleado, IdentificadorPago)
+            nroFactura, TipoFactura, sucursalID, Cliente, 
+            Fecha, Hora, MedioPago, Empleado)
         VALUES (
-            @nroFactura, @TipoFactura, @FacturaNC, @Sucursal, @Cliente, @Producto, 
-            @Cantidad, @Fecha, @Hora, @MedioPago, @Empleado, @IdentificadorPago);
+            @nroFactura, @TipoFactura, @Sucursal, @Cliente, @Fecha, @Hora, @MedioPago, @Empleado);
     END
     ELSE
     BEGIN
@@ -64,18 +62,18 @@ BEGIN
 END;
 GO
 
-
 -- INSERTAR NUEVA SUCURSAL
 CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevaSucursal
     @CiudadSucursal VARCHAR(50),
     @DireccionSucursal VARCHAR(200),
-    @Telefono VARCHAR(30)
+    @Telefono VARCHAR(30),
+	@Horario VARCHAR(100)
 AS
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM Supermercado.Sucursal WHERE Ciudad = @CiudadSucursal AND Direccion = @DireccionSucursal)
     BEGIN
-        INSERT INTO Supermercado.Sucursal (Ciudad, Direccion, Telefono)
-        VALUES (@CiudadSucursal, @DireccionSucursal, @Telefono);
+        INSERT INTO Supermercado.Sucursal (Ciudad, Direccion, Telefono,Horario)
+        VALUES (@CiudadSucursal, @DireccionSucursal, @Telefono,@Horario);
     END
     ELSE
     BEGIN
@@ -138,7 +136,6 @@ CREATE OR ALTER PROCEDURE Supervisor.InsertarNuevoEmpleadoEncriptado --SOLO PARA
     @FraseClave NVARCHAR(128)
 AS
 BEGIN
-    -- Verificar si el empleado ya existe
     IF NOT EXISTS (
         SELECT 1 
         FROM Supermercado.EmpleadoEncriptado 
@@ -146,13 +143,12 @@ BEGIN
         OR Dni = EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni))
     )
     BEGIN
-        -- Insertar los datos en la tabla EmpleadoEncriptado con encriptación
         INSERT INTO Supermercado.EmpleadoEncriptado (Legajo, Nombre, Apellido, Dni, Direccion, Email, EmailEmpresa, Cargo, SucursalID, Turno)
         VALUES (
             @Legajo,
             EncryptByPassPhrase(@FraseClave, @NombreEmpleado),
             EncryptByPassPhrase(@FraseClave, @Apellido),
-            EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni)),  -- C--NO ENTIENDO BIEN PQ TENGO QUE CONVERTIRLO CUANDO LO CREE COMO VARBINARY, PERO SI NO ME TIRA ERROR
+            EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni)),
             EncryptByPassPhrase(@FraseClave, @Direccion),
             EncryptByPassPhrase(@FraseClave, @Email),
             @EmailEmpresa,  
@@ -169,22 +165,16 @@ BEGIN
 END;
 GO
 
-
-
-
-
 CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
     @FraseClave NVARCHAR(128)
 AS
 BEGIN
-    -- Manejo de errores
     BEGIN TRY
-        -- Seleccionar y desencriptar los datos de la tabla
         SELECT 
             Legajo,
             CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Nombre)) AS Nombre,
             CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Apellido)) AS Apellido,
-            CONVERT(INT, DecryptByPassPhrase(@FraseClave, CONVERT(VARBINARY(256), Dni))) AS DNI, --NO ENTIENDO BIEN PQ TENGO QUE CONVERTIRLO CUANDO LO CREE COMO VARBINARY, PERO SI NO ME TIRA ERROR
+            CONVERT(INT, DecryptByPassPhrase(@FraseClave, CONVERT(VARBINARY(256), Dni))) AS DNI, 
             CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Direccion)) AS Direccion,
             CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Email)) AS Email,
             EmailEmpresa,
@@ -195,23 +185,11 @@ BEGIN
             Supermercado.EmpleadoEncriptado;
     END TRY
     BEGIN CATCH
-        -- Manejo de errores: imprime el mensaje de error
         PRINT 'Error al desencriptar los datos de la tabla Supermercado.EmpleadoEncriptado:';
         PRINT ERROR_MESSAGE();
     END CATCH;
 END;
 GO
-
-exec Supermercado.mostrarTablaEmpleadoEncriptada 'contraseña'
-
-
-
-
-
-
-
-
-
 
 -- INSERTAR NUEVO MEDIO DE PAGO
 CREATE OR ALTER PROCEDURE Ventas.InsertarNuevoMedioPago
@@ -231,93 +209,79 @@ BEGIN
 END;
 GO
 
-
-
----MOSTRAR REPORTE DE VENTAS 
-CREATE OR ALTER PROCEDURE Ventas.MostrarReporteVentas 
+-- BORRADO LÓGICO DE PRODUCTO
+CREATE OR ALTER PROCEDURE Supermercado.EliminarProducto
+    @ProductoID INT
 AS
 BEGIN
-    SELECT
-        f.IDFactura AS [ID FACTURA],
-        f.TipoFactura AS [TIPO DE FACTURA],
-        s.Ciudad AS [CIUDAD],
-        c.TipoCliente AS [TIPO DE CLIENTE],
-        c.Genero AS [GENERO],
-        p.NombreProducto AS [PRODUCTO],
-        p.PrecioUnitario AS [PRECIO UNITARIO],
-        f.Cantidad AS [CANTIDAD],
-        f.Fecha AS [FECHA],
-        mp.Descripcion AS [MEDIO DE PAGO],
-        e.Legajo AS [EMPLEADO],
-        s.Ciudad AS [SUCURSAL]
-    FROM 
-        Ventas.Factura f
-    JOIN 
-        Supermercado.Cliente c ON f.Cliente = c.ClienteID
-    JOIN 
-        Supermercado.Producto p ON f.Producto = p.ProductoID
-    JOIN 
-        Ventas.MediosPago mp ON f.MedioPago = mp.MedioPagoName
-    JOIN 
-        Supermercado.Empleado e ON f.Empleado = e.Legajo
-    JOIN 
-        Supermercado.Sucursal s ON f.Sucursal = s.SucursalID;
+    BEGIN TRY
+        -- Verificar existencia del producto
+        IF EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
+        BEGIN
+            DECLARE @FechaActual DATETIME = GETDATE();
+            UPDATE Supermercado.Producto SET deleted_at = @FechaActual WHERE ProductoID = @ProductoID;
+            PRINT 'Producto eliminado lógicamente exitosamente.';
+        END
+        ELSE
+        BEGIN
+            PRINT 'El producto no existe o ya fue eliminado.';
+        END
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al eliminar el producto:';
+        PRINT ERROR_MESSAGE();
+    END CATCH
 END;
 GO
 
--- Insertar un nuevo producto
-EXEC Supermercado.InsertarNuevoProducto 
-    @Categoria = 'Alimentos',
-    @NombreProducto = 'Pan',
-    @PrecioUnitario = 50.00,
-    @PrecioUnitarioUsd = 0.25,
-    @PrecioReferencia = 45.00,
-    @UnidadReferencia = 'Kg';
+CREATE OR ALTER PROCEDURE Ventas.CrearLineaProducto
+    @FacturaID INT,
+    @ProductoID INT,
+    @Cantidad INT,
+    @Subtotal DECIMAL(10, 2)
+AS
+BEGIN
+    BEGIN TRY
+        IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE IDFactura = @FacturaID)
+           AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
+        BEGIN
+            INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, Subtotal)
+            VALUES (@FacturaID, @ProductoID, @Cantidad, @Subtotal);
+            PRINT 'Línea de producto creada exitosamente.';
+        END
+        ELSE
+        BEGIN
+            PRINT 'La factura o el producto no existen o el producto ha sido eliminado.';
+        END
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al crear la línea de producto:';
+        PRINT ERROR_MESSAGE();
+    END CATCH
+END;
+GO
 
--- Insertar una nueva factura
-EXEC Ventas.InsertarNuevaFactura 
-    @nroFactura = '12345',
-    @TipoFactura = 'A',
-    @FacturaNC = NULL, -- ID de la factura de crédito si aplica
-    @Sucursal = 1,
-    @Cliente = 1,
-    @Producto = 1,
-    @Cantidad = 2,
-    @Hora = '12:30:00',
-    @MedioPago = 'Efectivo',
-    @Empleado = 1,
-    @IdentificadorPago = 'ABC123';
-
--- Insertar una nueva sucursal
-EXEC Supermercado.InsertarNuevaSucursal 
-    @CiudadSucursal = 'Montevideo',
-    @DireccionSucursal = 'Av. Principal 1234',
-    @Telefono = '099 123 456';
-
--- Insertar un nuevo cliente
-EXEC Supermercado.InsertarNuevoCliente 
-    @NombreCliente = 'Juan Perez',
-    @CiudadCliente = 'Montevideo',
-    @TipoCliente = 'Mayorista',
-    @Genero = 'M';
-
--- Insertar un nuevo empleado
-EXEC Supermercado.InsertarNuevoEmpleado 
-    @Legajo = 1,
-    @NombreEmpleado = 'Ana',
-    @Apellido = 'Lopez',
-    @Dni = 12345678,
-    @Direccion = 'Calle Falsa 123',
-    @Email = 'ana.lopez@correo.com',
-    @EmailEmpresa = 'ana.lopez@supermercado.com',
-    @Cargo = 'Cajero',
-    @SucursalID = 1, -- ID de la sucursal
-    @Turno = 'Mañana';
-
--- Insertar un nuevo medio de pago
-EXEC Ventas.InsertarNuevoMedioPago 
-    @MedioPagoName = 'Efectivo',
-    @Descripcion = 'Pago en efectivo';
-
--- Mostrar el reporte de ventas
-EXEC Ventas.MostrarReporteVentas;
+CREATE OR ALTER PROCEDURE Ventas.PagarFactura
+    @IDFactura INT,
+    @IdentificadorPago VARCHAR(100)
+AS
+BEGIN
+    BEGIN TRY
+        IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE IDFactura = @IDFactura AND IdentificadorPago IS NULL)
+        BEGIN
+            UPDATE Ventas.Factura
+            SET IdentificadorPago = @IdentificadorPago
+            WHERE IDFactura = @IDFactura;
+            PRINT 'Factura pagada exitosamente.';
+        END
+        ELSE
+        BEGIN
+            PRINT 'La factura no existe o ya fue pagada.';
+        END
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al pagar la factura:';
+        PRINT ERROR_MESSAGE();
+    END CATCH
+END;
+GO

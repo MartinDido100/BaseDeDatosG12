@@ -1,3 +1,5 @@
+--Script que crea el servicio de llamada a la API para convertir USD en ARS
+
 USE Com5600G12
 GO
 
@@ -21,7 +23,6 @@ BEGIN
     DECLARE @obj INT;
     DECLARE @status INT;
 
-    -- Crear el objeto HTTP
     EXEC sp_OACreate 'MSXML2.XMLHTTP', @obj OUT;
     
     IF @obj IS NULL

@@ -1,3 +1,6 @@
+-- Script que crea los procedures para importar los archivos con productos
+-- Ejecutar en el orden que se desarrollan
+
 USE Com5600G12;
 GO
 
@@ -5,20 +8,17 @@ CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosCatalogo
     @rutaArchivo NVARCHAR(MAX)
 AS
 BEGIN
-    -- Manejo de errores
     BEGIN TRY
-        -- Crear una tabla TEMPORAL para almacenar los datos del archivo CSV
         CREATE TABLE #temporal (
-            id NVARCHAR(MAX),                -- ID del producto
-            category NVARCHAR(MAX) NOT NULL, -- Categoría del producto
-            name NVARCHAR(MAX) NOT NULL,     -- Nombre del producto
-            price NVARCHAR(MAX) NOT NULL,    -- Precio unitario (cargado como NVARCHAR para manejar errores)
-            reference_price NVARCHAR(MAX) NOT NULL, -- Precio de referencia (cargado como NVARCHAR)
-            reference_unit NVARCHAR(100) NOT NULL,  -- Unidad de referencia
-            date NVARCHAR(MAX) NOT NULL       -- Fecha (cargado como NVARCHAR para manejar errores)
+            id NVARCHAR(MAX),              
+            category NVARCHAR(MAX) NOT NULL, 
+            name NVARCHAR(MAX) NOT NULL,    
+            price NVARCHAR(MAX) NOT NULL,   
+            reference_price NVARCHAR(MAX) NOT NULL, 
+            reference_unit NVARCHAR(100) NOT NULL, 
+            date NVARCHAR(MAX) NOT NULL    
         );
 
-        -- Construir el comando BULK INSERT de forma dinámica
         DECLARE @sql NVARCHAR(MAX) = N'
             BULK INSERT #temporal
             FROM ''' + @rutaArchivo + '''
@@ -32,10 +32,8 @@ BEGIN
             );
         ';
 
-        -- Ejecutar el BULK INSERT de manera dinámica
         EXEC sp_executesql @sql;
 
-        -- Insertar los datos únicos en la tabla definitiva Supermercado.Producto
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT 
             category AS Categoria,
@@ -66,16 +64,13 @@ BEGIN
             WHERE p.NombreProducto = subquery.name
         );
 
-        -- Limpiar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY
     BEGIN CATCH
-        -- Si ocurre un error, muestra el mensaje de error
         PRINT 'Error al insertar los datos en la tabla Supermercado.Producto:';
         PRINT ERROR_MESSAGE();
         
-        -- Asegúrate de limpiar la tabla temporal en caso de error
         IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
             DROP TABLE #temporal;
     END CATCH;
@@ -89,19 +84,16 @@ CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosElectronicos
     @rutaArchivo NVARCHAR(MAX)
 AS
 BEGIN
-    -- Manejo de errores
     BEGIN TRY
-        -- Crear una tabla TEMPORAL para almacenar los datos del archivo Excel
 		DECLARE @tipoCambio DECIMAL(10, 4);
 
 		EXEC Services.ObtenerTipoCambioUsdToArs @tipoCambio OUTPUT;
 
         CREATE TABLE #temporal (
-            Product NVARCHAR(MAX) NOT NULL,       -- Nombre del producto
-            PrecioEnDolares NVARCHAR(MAX) NOT NULL -- Precio unitario (como NVARCHAR para manejar errores)
+            Product NVARCHAR(MAX) NOT NULL,       
+            PrecioEnDolares NVARCHAR(MAX) NOT NULL
         );
 
-        -- Construir el comando de inserción usando OPENROWSET de forma dinámica
 		DECLARE @sql NVARCHAR(MAX) = '
 			INSERT INTO #temporal
 			SELECT *
@@ -112,10 +104,8 @@ BEGIN
 			) AS ExcelData;
 		';
 
-        -- Ejecutar la consulta dinámica
         EXEC sp_executesql @sql;
 
-        -- Insertar los datos únicos en la tabla definitiva Supermercado.Producto
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto,PrecioUnitario, PrecioUnitarioUsd, Fecha)
         SELECT 
             'Electronicos' AS Categoria,
@@ -137,16 +127,13 @@ BEGIN
 			WHERE p.NombreProducto = subquery.Product
 		);
 
-        -- Limpiar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY
     BEGIN CATCH
-        -- Si ocurre un error, muestra el mensaje de error
         PRINT 'Error al insertar los datos en la tabla Supermercado.Producto:';
         PRINT ERROR_MESSAGE();
         
-        -- Asegúrate de limpiar la tabla temporal en caso de error
         IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
             DROP TABLE #temporal;
     END CATCH;
@@ -157,9 +144,7 @@ CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosImportados
     @rutaArchivo NVARCHAR(MAX)
 AS
 BEGIN
-    -- Manejo de errores
     BEGIN TRY
-        -- Crear una tabla TEMPORAL para almacenar los datos del archivo Excel
         CREATE TABLE #temporal (
 			IdProducto NVARCHAR(MAX) NOT NULL,
             NombreProducto NVARCHAR(MAX) NOT NULL,
@@ -169,7 +154,6 @@ BEGIN
 			PrecioUnidad NVARCHAR(MAX) NOT NULL
         );
 
-        -- Construir el comando de inserción usando OPENROWSET de forma dinámica
 		DECLARE @sql NVARCHAR(MAX) = '
 			INSERT INTO #temporal
 			SELECT *
@@ -180,10 +164,8 @@ BEGIN
 			) AS ExcelData;
 		';
 
-        -- Ejecutar la consulta dinámica
         EXEC sp_executesql @sql;
 
-        -- Insertar los datos únicos en la tabla definitiva Supermercado.Producto
         INSERT INTO Supermercado.Producto (NombreProducto,UnidadReferencia,Categoria,Proveedor,PrecioUnitario, Fecha)
         SELECT  
 			NombreProducto,
@@ -209,29 +191,16 @@ BEGIN
 			WHERE p.NombreProducto = subquery.NombreProducto
 		);
 
-        -- Limpiar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY
     BEGIN CATCH
-        -- Si ocurre un error, muestra el mensaje de error
         PRINT 'Error al insertar los datos en la tabla Supermercado.Producto:';
         PRINT ERROR_MESSAGE();
         
-        -- Asegúrate de limpiar la tabla temporal en caso de error
         IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
             DROP TABLE #temporal;
     END CATCH;
 END;
 GO
-
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
-GO
-
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
-GO
-
-EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
-GO
-
 

@@ -64,6 +64,12 @@
           <AssociatedConnUserName />
           <FullPath>06.ImportarArchivosVentas.sql</FullPath>
         </FileNode>
+        <FileNode Name="07.ConsultasXML.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>07.ConsultasXML.sql</FullPath>
+        </FileNode>
         <FileNode Name="Borrado(opcional).sql">
           <AssociatedConnectionMoniker />
           <AssociatedConnSrvName />
