@@ -168,12 +168,22 @@ CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura
 AS
 BEGIN
     BEGIN TRY
+
         IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE IDFactura = @FacturaID)
-           
+            AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
         BEGIN
-            INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, PrecioU)
-            VALUES (@FacturaID, @ProductoID, @Cantidad, @PrecioU);
-            PRINT 'Línea de producto creada exitosamente.';
+
+            IF EXISTS (SELECT 1 FROM Ventas.LineaFactura WHERE FacturaID = @FacturaID AND ProductoID = @ProductoID)
+            BEGIN
+                PRINT 'El producto ya está en la factura.';
+            END
+            ELSE
+            BEGIN
+
+                INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, PrecioU)
+                VALUES (@FacturaID, @ProductoID, @Cantidad, @PrecioU);
+                PRINT 'Línea de producto creada exitosamente.';
+            END
         END
         ELSE
         BEGIN
@@ -186,6 +196,7 @@ BEGIN
     END CATCH
 END;
 GO
+
 
 --EMITIR FACTURA
 CREATE OR ALTER PROCEDURE Ventas.PagarFactura
