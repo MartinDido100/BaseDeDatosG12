@@ -404,13 +404,6 @@ BEGIN
 END;
 GO
 
-
-
-
-
-
-
-
 EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;
 EXEC Reporte.ReporteFacturadoPorTurnoTrimestralXML 2019,1;
 EXEC Reporte.ReporteTop5ProductosPorSemanaXML 3,2019;
