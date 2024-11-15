@@ -30,7 +30,7 @@ BEGIN
             FROM ''' + @rutaArchivo + '''
             WITH (
                 FORMAT = ''CSV'',
-                CODEPAGE = ''1200'', -- UTF-16 LE
+                CODEPAGE = ''65001'', 
                 FIRSTROW = 2,
                 FIELDTERMINATOR = '';'',
                 ROWTERMINATOR = ''0x0A'',
@@ -39,6 +39,40 @@ BEGIN
         ';
 
         EXEC sp_executesql @sql;
+
+		--Reemplazamo caracteres 
+		UPDATE #temp
+		set Producto = REPLACE(producto,'ÃƒÂº','ú')
+		where Producto like '%ÃƒÂº%'
+
+		UPDATE #temp
+		set Producto = REPLACE(producto,'Ã³','ó')
+		where Producto like '%Ã³%'
+
+		UPDATE #temp
+		SET Producto = REPLACE(Producto, 'Ãº', 'ú')
+		WHERE Producto LIKE '%Ãº%';
+
+		UPDATE #temp
+		SET Producto = REPLACE(Producto, 'Ã©', 'é')
+		WHERE Producto LIKE '%Ã©%';
+
+		UPDATE #temp
+		SET Producto = REPLACE(Producto, 'Ã±', 'ñ')
+		WHERE Producto LIKE '%Ã±%';
+
+		UPDATE #temp
+		SET Producto = REPLACE(Producto, 'Ã¡', 'á')
+		WHERE Producto LIKE '%Ã¡%';
+
+		--modifica la Ã pero deja un espacio por ejemplo el 16 Tónica zero calorí­-as Schweppes
+		UPDATE #temp
+		SET Producto = REPLACE(Producto, 'Ã', 'í')
+		WHERE Producto LIKE '%Ã%';
+
+		UPDATE #temp
+		SET Producto = REPLACE(Producto, 'Âº', 'º')
+		WHERE Producto LIKE '%Âº%';
 
         DECLARE @FacturaID INT;
 

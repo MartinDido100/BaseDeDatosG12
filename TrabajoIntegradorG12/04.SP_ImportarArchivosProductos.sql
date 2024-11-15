@@ -24,7 +24,7 @@ BEGIN
             FROM ''' + @rutaArchivo + '''
             WITH (
                 FORMAT = ''CSV'',
-                CODEPAGE = ''1200'',
+                CODEPAGE = ''65001'',
                 FIRSTROW = 2,
                 FIELDTERMINATOR = '','',
                 ROWTERMINATOR = ''0x0A'',
@@ -33,6 +33,40 @@ BEGIN
         ';
 
         EXEC sp_executesql @sql;
+
+		--Reemplazamo caracteres 
+		UPDATE #temporal
+		set name = REPLACE(name,'ÃƒÂº','ú')
+		where name like '%ÃƒÂº%'
+
+		UPDATE #temporal
+		set name = REPLACE(name,'Ã³','ó')
+		where name like '%Ã³%'
+
+		UPDATE #temporal
+		SET name = REPLACE(name, 'Ãº', 'ú')
+		WHERE name LIKE '%Ãº%';
+
+		UPDATE #temporal
+		SET name = REPLACE(name, 'Ã©', 'é')
+		WHERE name LIKE '%Ã©%';
+
+		UPDATE #temporal
+		SET name = REPLACE(name, 'Ã±', 'ñ')
+		WHERE name LIKE '%Ã±%';
+
+		UPDATE #temporal
+		SET name = REPLACE(name, 'Ã¡', 'á')
+		WHERE name LIKE '%Ã¡%';
+
+		--modifica la Ã pero deja un espacio por ejemplo el 16 Tónica zero calorí­-as Schweppes
+		UPDATE #temporal
+		SET name = REPLACE(name, 'Ã', 'í')
+		WHERE name LIKE '%Ã%';
+
+		UPDATE #temporal
+		SET name = REPLACE(name, 'Âº', 'º')
+		WHERE name LIKE '%Âº%';
 
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT 
