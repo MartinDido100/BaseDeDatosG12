@@ -1,19 +1,23 @@
 USE Com5600G12;
 GO
 
--- Calcular el total facturado por día de la semana para el mes y año especificados
+--Mensual: ingresando un mes y año determinado mostrar el total facturado por días de 
+--la semana, incluyendo sábado y domingo. 
 CREATE OR ALTER PROCEDURE Reporte.ReporteFacturadoPorDiaXML
     @Mes INT,
     @Anio INT
 AS
 BEGIN
-    SET NOCOUNT ON;
 
-    -- Obtener el total facturado por día de la semana en el mes y año especificados
+
+    DECLARE @XMLResult XML;
+
+
     SELECT 
-        DATENAME(WEEKDAY, f.Fecha) AS "DiaSemana",         -- Nombre del día
-        DATEPART(WEEKDAY, f.Fecha) AS "NumeroDiaSemana",   -- Número del día para ordenar
+        DATENAME(WEEKDAY, f.Fecha) AS "DiaSemana",         
+        DATEPART(WEEKDAY, f.Fecha) AS "NumeroDiaSemana",   
         SUM(l.Subtotal) AS "TotalFacturado"
+    INTO #TempReport
     FROM 
         Ventas.Factura f
     JOIN 
@@ -25,61 +29,76 @@ BEGIN
         DATENAME(WEEKDAY, f.Fecha),
         DATEPART(WEEKDAY, f.Fecha)
     ORDER BY 
-        DATEPART(WEEKDAY, f.Fecha) -- Ordenar por el número del día de la semana
-    FOR XML PATH('Dia'), ROOT('ReporteFacturacion');
+        DATEPART(WEEKDAY, f.Fecha); -- DATEPART devuelve el dia de la semana para la fecha
+
+    SELECT @XMLResult = 
+        (SELECT 
+            DiaSemana,
+            NumeroDiaSemana,
+            TotalFacturado
+        FROM #TempReport
+        FOR XML PATH('Dia'), ROOT('ReporteFacturacion'));
+
+
+    SELECT @XMLResult AS XMLResult;
+	DROP TABLE #TempReport;
 END;
 GO
 
---Trimestral: mostrar el total facturado por turnos de trabajo por meS----
+
+--Trimestral: mostrar el total facturado por turnos de trabajo por mes. 
 CREATE OR ALTER PROCEDURE Reporte.ReporteFacturadoPorTurnoTrimestralXML
-    @Anio INT,          -- Año para el trimestre
+    @Anio INT,          
     @Trimestre INT      -- Trimestre (1, 2, 3, 4)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Validación para asegurarse de que el trimestre esté en el rango correcto
+-- solo hay 4 trimestres
     IF @Trimestre < 1 OR @Trimestre > 4
     BEGIN
         RAISERROR('El trimestre debe ser un valor entre 1 y 4.', 16, 1);
         RETURN;
-    END
+    END;
 
-    -- Determinamos el rango de meses según el trimestre
     DECLARE @MesInicio INT, @MesFin INT;
 
     IF @Trimestre = 1
     BEGIN
         SET @MesInicio = 1;
         SET @MesFin = 3;
-    END
-    ELSE IF @Trimestre = 2
+    END;
+
+    IF @Trimestre = 2
     BEGIN
         SET @MesInicio = 4;
         SET @MesFin = 6;
-    END
-    ELSE IF @Trimestre = 3
+    END;
+
+    IF @Trimestre = 3
     BEGIN
         SET @MesInicio = 7;
         SET @MesFin = 9;
-    END
-    ELSE IF @Trimestre = 4
+    END;
+
+    IF @Trimestre = 4
     BEGIN
         SET @MesInicio = 10;
         SET @MesFin = 12;
-    END
+    END;
 
-    -- Obtener el total facturado por turno (mañana/tarde) y por mes
+    DECLARE @XMLResult XML;
+
+	--DATEPART(HOUR, f.Hora) devuelve solo la hora del horario
     SELECT 
-        MONTH(f.Fecha) AS "Mes",
+        MONTH(f.Fecha) AS Mes,
         CASE 
-            WHEN DATEPART(HOUR, f.Hora) >= 8 AND DATEPART(HOUR, f.Hora) < 15
-            THEN 'Turno Mañana'
-            WHEN DATEPART(HOUR, f.Hora) >= 15 AND DATEPART(HOUR, f.Hora) < 21
-            THEN 'Turno Tarde'
+            WHEN DATEPART(HOUR, f.Hora) >= 8 AND DATEPART(HOUR, f.Hora) < 15 THEN 'Turno Mañana'
+            WHEN DATEPART(HOUR, f.Hora) >= 15 AND DATEPART(HOUR, f.Hora) < 21 THEN 'Turno Tarde'
             ELSE 'Fuera de Turno'
-        END AS "Turno",
-        SUM(l.Subtotal) AS "TotalFacturado"
+        END AS Turno,
+        SUM(l.Subtotal) AS TotalFacturado
+    INTO #TempReport
     FROM 
         Ventas.Factura f
     JOIN 
@@ -89,69 +108,104 @@ BEGIN
         AND MONTH(f.Fecha) BETWEEN @MesInicio AND @MesFin
     GROUP BY 
         MONTH(f.Fecha),
-        CASE 
-            WHEN DATEPART(HOUR, f.Hora) >= 8 AND DATEPART(HOUR, f.Hora) < 15
-            THEN 'Turno Mañana'
-            WHEN DATEPART(HOUR, f.Hora) >= 15 AND DATEPART(HOUR, f.Hora) < 21
-            THEN 'Turno Tarde'
+        CASE --asigno turno segun el horario
+            WHEN DATEPART(HOUR, f.Hora) >= 8 AND DATEPART(HOUR, f.Hora) < 15 THEN 'Turno Mañana'
+            WHEN DATEPART(HOUR, f.Hora) >= 15 AND DATEPART(HOUR, f.Hora) < 21 THEN 'Turno Tarde'
             ELSE 'Fuera de Turno'
         END
     ORDER BY 
-        MONTH(f.Fecha), "Turno"
-    FOR XML PATH('TurnoFactura'), ROOT('ReporteFacturacionTrimestral');
+        Mes, Turno;
+
+    SELECT @XMLResult = 
+        (SELECT 
+            Mes,
+            Turno,
+            TotalFacturado
+        FROM #TempReport
+        FOR XML PATH('TurnoFactura'), ROOT('ReporteFacturacionTrimestral'));
+
+
+    SELECT @XMLResult AS XMLResult;
+
+
+    DROP TABLE #TempReport;
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Reporte.ReporteCantidadProductosPorRangoFechasXML
-    @FechaInicio DATE,       -- Fecha de inicio del rango
-    @FechaFin DATE           -- Fecha de fin del rango
+
+
+--por rango de fechas: ingresando un rango de fechas a demanda, debe poder mostrar 
+--la cantidad de productos vendidos en ese rango por sucursal, ordenado de mayor a 
+--menor. 
+CREATE OR ALTER PROCEDURE Reporte.ReporteVentasPorCiudadPorRangoDeFechasXML
+    @FechaInicio DATE,    
+    @FechaFin DATE        
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Verificación de que la fecha de inicio es anterior a la fecha de fin
-    IF @FechaInicio >= @FechaFin
+    IF @FechaInicio > @FechaFin
     BEGIN
-        RAISERROR('La fecha de inicio debe ser anterior a la fecha de fin.', 16, 1);
-        RETURN;
-    END
+        THROW 50003, 'La fecha de inicio no puede ser mayor que la fecha de fin.', 1;
+    END;
 
-    -- Consulta para obtener la cantidad total de productos vendidos en el rango de fechas
-    SELECT 
-        p.NombreProducto,
-        SUM(l.Cantidad) AS CantidadVendida
-    FROM 
-        Ventas.LineaFactura l
-    JOIN 
-        Supermercado.Producto p ON l.ProductoID = p.ProductoID
-    JOIN 
-        Ventas.Factura f ON l.FacturaID = f.IDFactura
-    WHERE 
-        f.Fecha BETWEEN @FechaInicio AND @FechaFin
-    GROUP BY 
-        p.NombreProducto
-    ORDER BY 
-        CantidadVendida DESC
-    FOR XML PATH('ProductoVendido'), ROOT('ReporteCantidadProductos');
+
+    DECLARE @XMLResult XML;
+
+    
+    ;WITH VentasPorCiudad AS (
+        SELECT 
+            f.sucursalID,
+            s.Ciudad,  
+            SUM(l.Cantidad) AS TotalVendidos
+        FROM 
+            Ventas.LineaFactura l
+        JOIN 
+            Ventas.Factura f ON l.FacturaID = f.IDFactura
+        JOIN 
+            Supermercado.Sucursal s ON f.sucursalID = s.SucursalID
+        WHERE 
+            f.Fecha BETWEEN @FechaInicio AND @FechaFin
+        GROUP BY 
+            f.sucursalID, s.Ciudad
+    )
+
+
+    SELECT @XMLResult = (
+        SELECT 
+            Ciudad,
+            TotalVendidos
+        FROM 
+            VentasPorCiudad
+        ORDER BY 
+            TotalVendidos DESC
+        FOR XML PATH('CiudadVenta'), ROOT('ReporteVentasPorCiudad')
+    );
+
+ 
+    SELECT @XMLResult AS XMLResult;
 END;
 GO
 
 
---REVISALA ---Mostrar los 5 productos más vendidos en un mes, por semana --
+--Mostrar los 5 productos más vendidos en un mes, por semana 
 CREATE OR ALTER PROCEDURE Reporte.ReporteTop5ProductosPorSemanaXML
-    @Mes INT,        -- Mes (1 = Enero, 2 = Febrero, ..., 12 = Diciembre)
-    @Anio INT        -- Año
+    @Mes INT,        
+    @Anio INT        
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Validación de que el mes ingresado sea válido (entre 1 y 12)
+    -- solo hay 12 meses
     IF @Mes < 1 OR @Mes > 12
     BEGIN
         THROW 50002, 'El mes ingresado es inválido. Debe ser un valor entre 1 y 12.', 1;
-    END
+    END;
 
-    -- Consulta para obtener los 5 productos más vendidos por semana en un mes específico
+
+    DECLARE @XMLResult XML;
+
+    -- obtengo los 5 productos más vendidos por semana 
     ;WITH ProductosPorSemana AS (
         SELECT 
             p.NombreProducto,
@@ -169,41 +223,49 @@ BEGIN
             p.NombreProducto, DATEPART(WEEK, f.Fecha)
     )
 
-    -- Selección de los 5 productos más vendidos por semana, ordenado por semana y cantidad vendida
-    SELECT 
-        Semana, 
-        NombreProducto,
-        TotalVendidos
-    FROM (
+    -- obtengo de los 5 productos más vendidos 
+    SELECT @XMLResult = (
         SELECT 
-            Semana,
+            Semana, 
             NombreProducto,
-            TotalVendidos,
-            ROW_NUMBER() OVER (PARTITION BY Semana ORDER BY TotalVendidos DESC) AS Rnk
-        FROM 
-            ProductosPorSemana
-    ) AS RankedProductos
-    WHERE Rnk <= 5
-    ORDER BY Semana, Rnk
-    FOR XML PATH('ProductoSemana'), ROOT('ReporteTop5ProductosPorSemana');
+            TotalVendidos
+        FROM (
+            SELECT 
+                Semana,
+                NombreProducto,
+                TotalVendidos,
+                ROW_NUMBER() OVER (PARTITION BY Semana ORDER BY TotalVendidos DESC) AS Rnk
+            FROM 
+                ProductosPorSemana
+        ) AS RankedProductos
+        WHERE Rnk <= 5
+        ORDER BY Semana, Rnk
+        FOR XML PATH('ProductoSemana'), ROOT('ReporteTop5ProductosPorSemana')
+    );
+
+
+    SELECT @XMLResult AS XMLResult;
 END;
 GO
 
 
 
---5 MENOS VENDIDOS DEL MES --
+
+--Mostrar los 5 productos menos vendidos en un mes, por semana 
 CREATE OR ALTER PROCEDURE Reporte.ReporteMenosVendidosPorMesXML
     @Mes INT,        
     @Anio INT        
 AS
 BEGIN
-    SET NOCOUNT ON;
 
-    -- Validación de que el mes ingresado sea válido (entre 1 y 12)
+    SET NOCOUNT ON;
     IF @Mes < 1 OR @Mes > 12
     BEGIN
         THROW 50002, 'El mes ingresado es inválido. Debe ser un valor entre 1 y 12.', 1;
-    END
+    END;
+
+
+    DECLARE @XMLResult XML;
 
     -- Consulta para obtener los 5 productos menos vendidos en el mes
     ;WITH ProductosPorMes AS (
@@ -223,21 +285,137 @@ BEGIN
     )
 
     -- Selección de los 5 productos menos vendidos, ordenado por la cantidad vendida
-    SELECT 
-        NombreProducto,
-        TotalVendidos
-    FROM (
+    SELECT @XMLResult = (
         SELECT 
             NombreProducto,
-            TotalVendidos,
-            ROW_NUMBER() OVER (ORDER BY TotalVendidos ASC) AS Rnk
-        FROM 
-            ProductosPorMes
-    ) AS RankedProductos
-    WHERE Rnk <= 5
-    ORDER BY TotalVendidos ASC
-    FOR XML PATH('ProductoMenosVendido'), ROOT('ReporteMenosVendidosPorMes');
+            TotalVendidos
+        FROM (
+            SELECT 
+                NombreProducto,
+                TotalVendidos,
+                ROW_NUMBER() OVER (ORDER BY TotalVendidos ASC) AS Rnk
+            FROM 
+                ProductosPorMes
+        ) AS RankedProductos
+        WHERE Rnk <= 5
+        ORDER BY TotalVendidos ASC
+        FOR XML PATH('ProductoMenosVendido'), ROOT('ReporteMenosVendidosPorMes')
+    );
+
+
+    SELECT @XMLResult AS XMLResult;
 END;
 GO
 
-EXEC Reporte.ReporteFacturadoPorDiaXML 2019,3;
+
+--Mostrar total acumulado de ventas (o sea tambien mostrar el detalle) para una fecha 
+--y sucursal particulares
+CREATE OR ALTER PROCEDURE Reporte.ReporteVentasPorSucursalYFechaXML
+    @Fecha DATE,           
+    @SucursalNombre NVARCHAR(100)  
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+
+    DECLARE @TotalDia DECIMAL(10, 2) = 0;
+    DECLARE @XMLResult XML;
+
+    CREATE TABLE #VentasDetalle (
+        FacturaID INT,
+        NombreProducto NVARCHAR(200),
+        Cantidad INT,
+        PrecioUnitario DECIMAL(10, 2),
+        Subtotal DECIMAL(10, 2),
+        TotalVenta DECIMAL(10, 2)
+    );
+
+	
+    INSERT INTO #VentasDetalle (FacturaID, NombreProducto, Cantidad, PrecioUnitario, Subtotal, TotalVenta)
+    SELECT 
+        f.IDFactura,                      
+        p.NombreProducto,                  
+        l.Cantidad,                        
+        p.PrecioUnitario,                  
+        l.Cantidad * p.PrecioUnitario AS Subtotal, 
+        (SELECT SUM(l2.Cantidad * p2.PrecioUnitario) 
+            FROM Ventas.LineaFactura l2 
+            JOIN Supermercado.Producto p2 ON l2.ProductoID = p2.ProductoID 
+            WHERE l2.FacturaID = f.IDFactura) AS TotalVenta 
+    FROM 
+        Ventas.LineaFactura l
+    JOIN 
+        Ventas.Factura f ON l.FacturaID = f.IDFactura
+    JOIN 
+        Supermercado.Producto p ON l.ProductoID = p.ProductoID
+    JOIN 
+        Supermercado.Sucursal s ON f.sucursalID = s.SucursalID
+    WHERE 
+        f.Fecha = @Fecha                       
+        AND s.Ciudad = @SucursalNombre           
+
+    SELECT @TotalDia = SUM(TotalVenta) FROM #VentasDetalle;
+
+    -- creo el primer xml
+    SELECT @XMLResult = (
+        SELECT 
+            FacturaID,
+            NombreProducto, 
+            Cantidad, 
+            PrecioUnitario, 
+            Subtotal, 
+            TotalVenta
+        FROM 
+            #VentasDetalle
+        ORDER BY 
+            FacturaID, NombreProducto
+        FOR XML PATH('VentaDetalle'), ROOT('ReporteVentasSucursal')
+    );
+
+    -- Crear EL XML del total  por separado, para dejarlo al final
+    DECLARE @TotalDiaXML XML;
+    SET @TotalDiaXML = (
+        SELECT @TotalDia AS TotalDelDia
+        FOR XML PATH('TotalDelDia')
+    );
+
+    -- Concateno los 2 XML
+    SET @XMLResult = (
+        SELECT 
+            (SELECT 
+                FacturaID,
+                NombreProducto, 
+                Cantidad, 
+                PrecioUnitario, 
+                Subtotal, 
+                TotalVenta
+            FROM 
+                #VentasDetalle
+            ORDER BY 
+                FacturaID, NombreProducto
+            FOR XML PATH('VentaDetalle'), TYPE) AS VentaDetalles,
+            @TotalDiaXML AS TotalDia
+        FOR XML PATH('ReporteVentasSucursal')
+    );
+
+    SELECT @XMLResult AS ReporteXML;
+
+    DROP TABLE IF EXISTS #VentasDetalle;
+END;
+GO
+
+
+
+
+
+
+
+
+EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;
+EXEC Reporte.ReporteFacturadoPorTurnoTrimestralXML 2019,1;
+EXEC Reporte.ReporteTop5ProductosPorSemanaXML 3,2019;
+EXEC Reporte.ReporteMenosVendidosPorMesXML 3,2019;
+
+EXEC Reporte.ReporteVentasPorCiudadPorRangoDeFechasXML'2019-3-01','2019-3-31';        
+
+EXEC Reporte.ReporteVentasPorSucursalYFechaXML '2019-3-01','Ramos mejia'
