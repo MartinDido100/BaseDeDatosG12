@@ -71,6 +71,12 @@ CREATE OR ALTER PROCEDURE Supermercado.InsertarCategorias
 AS
 BEGIN
     BEGIN TRY
+
+		IF NOT EXISTS(SELECT 1 FROM Supermercado.Categoria WHERE Descripcion LIKE 'Electronicos')
+		BEGIN
+			INSERT INTO Supermercado.Categoria(Descripcion) VALUES ('Electronicos');
+		END
+
         CREATE TABLE #temporal (
 			LineaProducto NVARCHAR(MAX) NOT NULL,
             Descripcion NVARCHAR(MAX) NOT NULL,
