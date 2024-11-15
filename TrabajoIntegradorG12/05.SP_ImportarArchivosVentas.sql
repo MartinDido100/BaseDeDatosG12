@@ -99,7 +99,9 @@ BEGIN
 
         WHILE @@FETCH_STATUS = 0
         BEGIN
-            IF EXISTS (SELECT 1 FROM Supermercado.Empleado WHERE Legajo = @Empleado)
+
+           IF EXISTS (SELECT 1 FROM Supermercado.Empleado WHERE Legajo = @Empleado)
+		   AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE NombreProducto = @Producto AND deleted_at IS NULL)
             BEGIN
 
                 IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
@@ -113,7 +115,7 @@ BEGIN
                         @Hora, 
                         (SELECT IdMedioPago FROM Ventas.MediosPago WHERE Descripcion = @MedioPago), 
                         (SELECT EmpleadoID FROM Supermercado.Empleado WHERE Legajo = @Empleado), -- Asigna EmpleadoID, no Legajo
-                        2, -- Asigna aquí ClienteID según la lógica deseada
+                        1, -- Asigna aquí ClienteID según la lógica deseada
                         @IdentificadorPago
                     );
 

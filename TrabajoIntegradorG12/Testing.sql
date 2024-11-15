@@ -23,34 +23,49 @@ EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
 EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
 
 --4 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
-EXEC Supermercado.InsertarEmpleados 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
-EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx','contraseña'
+EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
 GO
 
-EXEC Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
+EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
 GO
 
 --5 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\Productos_importados.xlsx'
 GO
+
+-- Insertar un nuevo cliente
+EXEC Supermercado.InsertarNuevoCliente 
+    @NombreCliente = 'Juan Perez',
+    @CiudadCliente = 'Montevideo',
+    @TipoCliente = 'Mayorista',
+    @Genero = 'M';
+
+SELECT * FROM Supermercado.Cliente
 
 --6 Importacion de facturas
-EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Ventas_registradas.csv'
+EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Ventas_registradas.csv'
 GO
 
 --7 Generar nota de credito (Cambiar el ID de factura en caso de necesitarse)
-EXEC Supervisor.GenerarNotaDeCredito 3345;
+--Factura pagada y habilitada para nota de credito
+EXEC Supervisor.GenerarNotaDeCredito 775;
+
+--Factura no pagada y habilitada para nota de credito
+EXEC Supervisor.GenerarNotaDeCredito 774;
+
+
 
 --8 Scripts varios y comunes (ejecutar en cualquier orden)
 
@@ -71,13 +86,6 @@ EXEC Supermercado.InsertarNuevoEmpleado
     @Cargo = 'Cajero',
     @SucursalID = 1, -- ID de la sucursal
     @Turno = 'Mañana';
-
--- Insertar un nuevo cliente
-EXEC Supermercado.InsertarNuevoCliente 
-    @NombreCliente = 'Juan Perez',
-    @CiudadCliente = 'Montevideo',
-    @TipoCliente = 'Mayorista',
-    @Genero = 'M';
 
 
 -- Insertar una nueva sucursal
@@ -109,7 +117,7 @@ EXEC Supermercado.InsertarNuevoProducto
 --Borrado logico de producto
 EXEC Supermercado.EliminarProducto @ProductoID = 1;
 
-Crear linea de factura
+--Crear linea de factura
 EXEC Ventas.CrearLineaFactura @FacturaID = 3347, @ProductoID = 1, @Cantidad = 5, @Subtotal = 150.00;
 
 --Crear linea de factura erronea

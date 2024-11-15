@@ -1,6 +1,6 @@
 -- Script para crear roles y usuarios para la base de datos
 
----------------------------ADMIN------------------------------------------------------------------------
+---------------------------ADMIN TOTALMENTE OPCIONAL------------------------------------------------------------------------
 -- 1. Crear el login para el servidor
 CREATE LOGIN messi WITH PASSWORD = 'basededatos';
 
@@ -11,7 +11,7 @@ USE Com5600G12;
 CREATE USER mateo FOR LOGIN messi;
 
 -- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
-ALTER SERVER ROLE sysadmin ADD MEMBER fabricio;
+ALTER SERVER ROLE sysadmin ADD MEMBER messi;
 --------------------------------------------------------------------------------
 
 
@@ -30,6 +30,7 @@ BEGIN
         GRANT EXECUTE ON SCHEMA::Ventas TO Supervisor;
         GRANT EXECUTE ON SCHEMA::Supermercado TO Supervisor;
 		GRANT EXECUTE ON SCHEMA::Supervisor TO Supervisor;
+		GRANT EXECUTE ON SCHEMA::Reporte TO Supervisor;
         PRINT 'Permisos totales asignados al rol Supervisor';
     END
     ELSE
@@ -44,6 +45,7 @@ BEGIN
         
         GRANT EXECUTE ON SCHEMA::Ventas TO Empleado;
         GRANT EXECUTE ON SCHEMA::Supermercado TO Empleado;
+		GRANT EXECUTE ON SCHEMA::Reporte TO Empleado;
         PRINT 'Permiso de EXECUTE asignado al rol Empleado';
     END
     ELSE

@@ -99,15 +99,15 @@ BEGIN
 		CREATE TABLE Supermercado.EmpleadoEncriptado (
 			EmpleadoID INT PRIMARY KEY IDENTITY(1,1),
             Legajo INT UNIQUE,
-			Nombre VARBINARY(256) NOT NULL,            -- Encriptado
-			Apellido VARBINARY(256) NOT NULL,          -- Encriptado
-			Dni VARBINARY(256) NOT NULL,               -- Encriptado
-			Direccion VARBINARY(256) NOT NULL,         -- Encriptado
-			Email VARBINARY(256),                      -- Encriptado
-			EmailEmpresa NVARCHAR(100),                -- No encriptado
-			Cargo NVARCHAR(50) NOT NULL,               -- No encriptado
+			Nombre VARBINARY(256) NOT NULL,            
+			Apellido VARBINARY(256) NOT NULL,          
+			Dni VARBINARY(256) NOT NULL,               
+			Direccion VARBINARY(256) NOT NULL,         
+			Email VARBINARY(256),                      
+			EmailEmpresa NVARCHAR(100),                
+			Cargo NVARCHAR(50) NOT NULL,               
 			SucursalID INT NOT NULL,
-			Turno NVARCHAR(30),                        -- No encriptado
+			Turno NVARCHAR(30),                        
 			FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
 		);
 	END;
