@@ -66,8 +66,6 @@ GO
     BEGIN
         CREATE TABLE Supermercado.Cliente (
             ClienteID INT PRIMARY KEY IDENTITY(1,1),
-            Nombre VARCHAR(100) NOT NULL,
-            Ciudad VARCHAR(100) NOT NULL,    
             TipoCliente VARCHAR(30) NOT NULL,  
             Genero CHAR(1),
         );
@@ -113,7 +111,7 @@ GO
     BEGIN
         CREATE TABLE Supermercado.Producto (
             ProductoID INT PRIMARY KEY IDENTITY(1,1),
-            Categoria VARCHAR(200) NOT NULL,
+            CategoriaID INT NOT NULL,
             NombreProducto VARCHAR(200) NOT NULL,
             PrecioUnitario DECIMAL(10, 2) NOT NULL,
 			PrecioUnitarioUsd DECIMAL(10,2) NULL,
@@ -122,6 +120,7 @@ GO
             Fecha DATETIME NOT NULL,
 			Proveedor VARCHAR(100) NULL,
 			deleted_at DATETIME NULL,
+			FOREIGN KEY (CategoriaID) REFERENCES Supermercado.Categoria(ID)
         );
     END
 
@@ -142,6 +141,7 @@ GO
             nroFactura VARCHAR(50) UNIQUE,
             TipoFactura VARCHAR(10), --Aca puede ser factura o nota de credito
 			sucursalID INT NOT NULL,
+			clienteID INT NOT NULL,
             Fecha DATE NOT NULL,
             Hora TIME NOT NULL,
             MedioPago INT NOT NULL,
@@ -150,6 +150,7 @@ GO
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(EmpleadoID),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
 			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
+			FOREIGN KEY (clienteID) REFERENCES Supermercado.Cliente(ClienteID)
         );
     END
 
@@ -163,6 +164,21 @@ GO
 			PrecioU DECIMAL(10,2) NOT NULL,
 			FOREIGN KEY (ProductoID) REFERENCES Supermercado.Producto(ProductoID),
 			FOREIGN KEY (FacturaID) REFERENCES Ventas.Factura(IDFactura)
+        );
+    END
+
+	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Ventas.LineaNDC') AND type IN (N'U'))
+    BEGIN
+        CREATE TABLE Ventas.LineaNDC (
+			IDLineaNDC INT PRIMARY KEY IDENTITY(1,1),
+			Cantidad INT NOT NULL,
+			ProductoID INT NOT NULL,
+			FacturaID INT NOT NULL,
+			LineaFacturaID INT NOT NULL,
+			PrecioU DECIMAL(10,2) NOT NULL,
+			FOREIGN KEY (ProductoID) REFERENCES Supermercado.Producto(ProductoID),
+			FOREIGN KEY (FacturaID) REFERENCES Ventas.Factura(IDFactura),
+			FOREIGN KEY (LineaFacturaID) REFERENCES Ventas.LineaFactura(IDLineaFactura),
         );
     END
 

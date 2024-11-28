@@ -293,3 +293,34 @@ BEGIN
     END CATCH
 END;
 GO
+
+CREATE OR ALTER PROCEDURE Ventas.MostrarReporteVentas
+AS
+BEGIN
+    SELECT
+        f.IDFactura AS [ID FACTURA],
+        f.TipoFactura AS [TIPO DE FACTURA],
+        s.Ciudad AS [CIUDAD],
+        c.TipoCliente AS [TIPO DE CLIENTE],
+        c.Genero AS [GENERO],
+        p.NombreProducto AS [PRODUCTO],
+        p.PrecioUnitario AS [PRECIO UNITARIO],
+        f.Cantidad AS [CANTIDAD],
+        f.Fecha AS [FECHA],
+        mp.Descripcion AS [MEDIO DE PAGO],
+        e.Legajo AS [EMPLEADO],
+        s.Ciudad AS [SUCURSAL]
+    FROM 
+        Ventas.Factura f
+    JOIN 
+        Supermercado.Cliente c ON f.Cliente = c.ClienteID
+    JOIN 
+        Supermercado.Producto p ON f.Producto = p.ProductoID
+    JOIN 
+        Ventas.MediosPago mp ON f.MedioPago = mp.MedioPagoName
+    JOIN 
+        Supermercado.Empleado e ON f.Empleado = e.Legajo
+    JOIN 
+        Supermercado.Sucursal s ON f.Sucursal = s.SucursalID;
+END;
+GO

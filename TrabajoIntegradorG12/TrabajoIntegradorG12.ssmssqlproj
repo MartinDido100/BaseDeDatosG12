@@ -3,73 +3,88 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="DESKTOP-GM81HBQ:DESKTOP-GM81HBQ\Usuario">
-          <Created>2024-11-15T17:18:51.6804462-03:00</Created>
+        <ConnectionNode Name="DESKTOP-O7U17UT:DESKTOP-O7U17UT\marti">
+          <Created>2024-11-28T15:52:48.6336442-03:00</Created>
           <Type>SQL</Type>
-          <Server>DESKTOP-GM81HBQ</Server>
+          <Server>DESKTOP-O7U17UT</Server>
           <UserName />
           <Authentication>Windows Authentication</Authentication>
           <InitialDB />
           <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>False</TrustServerCertificate>
+          <HostNameInServerCertificate />
+          <EncryptionOption>False</EncryptionOption>
           <ExecutionTimeout>0</ExecutionTimeout>
           <ConnectionProtocol>NotSpecified</ConnectionProtocol>
-          <ApplicationName />
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
         </ConnectionNode>
       </Items>
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
-        <FileNode Name="00.Creacion Base y Tablas.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+        <FileNode Name="01.CreacionDeUsers.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>00.Creacion Base y Tablas.sql</FullPath>
+          <FullPath>01.CreacionDeUsers.sql</FullPath>
         </FileNode>
-        <FileNode Name="01.SP_ImportarArchivosSupermercado.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+        <FileNode Name="02.SP_ImportarArchivosSupermercado.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>01.SP_ImportarArchivosSupermercado.sql</FullPath>
+          <FullPath>02.SP_ImportarArchivosSupermercado.sql</FullPath>
         </FileNode>
-        <FileNode Name="02.SP_APIService.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+        <FileNode Name="03.SP_APIService.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>02.SP_APIService.sql</FullPath>
+          <FullPath>03.SP_APIService.sql</FullPath>
         </FileNode>
-        <FileNode Name="03.SP_ImportarArchivosProductos.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+        <FileNode Name="04.SP_ImportarArchivosProductos.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
-          <FullPath>03.SP_ImportarArchivosProductos.sql</FullPath>
+          <FullPath>04.SP_ImportarArchivosProductos.sql</FullPath>
         </FileNode>
-        <FileNode Name="04.SP_ImportarArchivosVentas.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+        <FileNode Name="05.SP_ImportarArchivosVentas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>04.SP_ImportarArchivosVentas.sql</FullPath>
+          <FullPath>05.SP_ImportarArchivosVentas.sql</FullPath>
         </FileNode>
-        <FileNode Name="05.ConsultasXML.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+        <FileNode Name="06.ConsultasXML.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
-          <FullPath>05.ConsultasXML.sql</FullPath>
+          <FullPath>06.ConsultasXML.sql</FullPath>
         </FileNode>
         <FileNode Name="06.SP_ABM.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>06.SP_ABM.sql</FullPath>
         </FileNode>
+        <FileNode Name="06.SP_Facturacion.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>06.SP_Facturacion.sql</FullPath>
+        </FileNode>
         <FileNode Name="07.Borrado(opcional).sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>07.Borrado(opcional).sql</FullPath>
         </FileNode>
+        <FileNode Name="08.Backup.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>08.Backup.sql</FullPath>
+        </FileNode>
         <FileNode Name="Testing.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-O7U17UT:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>DESKTOP-O7U17UT</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Testing.sql</FullPath>
         </FileNode>
