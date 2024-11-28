@@ -5,6 +5,23 @@
 USE Com5600G12;
 GO
 
+--2
+-- Crear login para 'martin'
+CREATE LOGIN martin WITH PASSWORD = 'tincho32';
+
+-- Crear el usuario 'martin' en la base de datos 'Com5600G12'
+CREATE USER martin FOR LOGIN martin;
+
+--Crear roles siendo supervisor
+EXEC Supervisor.CrearRolesConPermisos;
+
+-- Asignar el rol 'Supervisor' al usuario 'martin'
+EXEC sp_addrolemember 'Empleado', 'martin';
+
+--3 Execs para crear un par de logins adicionales
+EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseÃ±a'
+EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseÃ±a'
+
 --2 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
 EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
@@ -55,7 +72,7 @@ EXEC Supermercado.InsertarNuevoEmpleado
     @EmailEmpresa = 'ana.lopez@supermercado.com',
     @Cargo = 'Cajero',
     @SucursalID = 1, -- ID de la sucursal
-    @Turno = 'Mañana';
+    @Turno = 'Maï¿½ana';
 
 
 -- Insertar una nueva sucursal
@@ -72,7 +89,7 @@ EXEC Ventas.CrearFactura
     @Sucursal = 1,
     @Cliente = 1,
     @Hora = '12:30:00',
-    @MedioPago = 1,  -- Aquí, el MedioPago debe ser un número, no una cadena (como se define en el procedimiento)
+    @MedioPago = 1,  -- Aquï¿½, el MedioPago debe ser un nï¿½mero, no una cadena (como se define en el procedimiento)
     @Empleado = 1;
 
 -- Insertar un nuevo producto
