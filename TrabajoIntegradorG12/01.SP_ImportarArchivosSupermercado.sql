@@ -177,7 +177,7 @@ BEGIN
         JOIN 
             Supermercado.Sucursal s ON subquery.Sucursal = s.Ciudad
         WHERE 
-            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Dirección
+            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Direcciï¿½n
             AND NOT EXISTS (
                 SELECT 1 
                 FROM Supermercado.Empleado e 
@@ -198,6 +198,93 @@ END;
 GO
 
 
+CREATE OR ALTER PROCEDURE Supervisor.InsertarEmpleadosEncriptado --solo el Supervisor por que el solo sabe la contraseï¿½a
+    @rutaArchivo NVARCHAR(MAX),
+    @fraseClave NVARCHAR(128)
+AS
+BEGIN
+    BEGIN TRY
+        CREATE TABLE #temporal (
+            Legajo INT,
+            Nombre NVARCHAR(100),
+            Apellido NVARCHAR(100),
+            DNI INT,
+            Direccion NVARCHAR(200),
+            Email NVARCHAR(100),
+            EmailEmpresa NVARCHAR(100),
+            Cargo NVARCHAR(50),
+            Sucursal NVARCHAR(50),
+            Turno NVARCHAR(30)
+        );
+
+        DECLARE @sql NVARCHAR(MAX) = '
+            INSERT INTO #temporal (Legajo, Nombre, Apellido, DNI, Direccion, Email, EmailEmpresa, Cargo, Sucursal, Turno)
+            SELECT 
+                F1 AS Legajo,
+                F2 AS Nombre,
+                F3 AS Apellido,
+                F4 AS DNI,
+                F5 AS Direccion,
+                F6 AS Email,
+                F7 AS EmailEmpresa,
+                F9 AS Cargo,
+                F10 AS Sucursal,
+                F11 AS Turno
+            FROM OPENROWSET(
+                ''Microsoft.ACE.OLEDB.12.0'', 
+                ''Excel 12.0 Xml;HDR=NO;Database=' + @rutaArchivo + ''', 
+                ''SELECT * FROM [Empleados$]''
+            ) AS ExcelData
+            WHERE F4 IS NOT NULL'; 
+
+        EXEC sp_executesql @sql;
+
+        INSERT INTO Supermercado.EmpleadoEncriptado (
+            Legajo,
+            Nombre,
+            Apellido,
+            Dni,
+            Direccion,
+            Email,
+            EmailEmpresa,
+            Cargo,
+            SucursalID,
+            Turno
+        )
+        SELECT  
+            t.Legajo,
+            EncryptByPassPhrase(@fraseClave, t.Nombre),        
+            EncryptByPassPhrase(@fraseClave, t.Apellido),      
+            EncryptByPassPhrase(@fraseClave, CAST(t.DNI AS NVARCHAR)),  
+            EncryptByPassPhrase(@fraseClave, t.Direccion),    
+            EncryptByPassPhrase(@fraseClave, t.Email),       
+            t.EmailEmpresa,                                    
+            t.Cargo,                  
+            s.SucursalID,
+            t.Turno
+        FROM 
+            #temporal t
+        JOIN 
+            Supermercado.Sucursal s ON t.Sucursal = s.Ciudad
+		WHERE NOT EXISTS (
+            SELECT 1 
+            FROM Supermercado.EmpleadoEncriptado e 
+            WHERE e.Legajo = t.Legajo
+        );
+
+        DROP TABLE #temporal;
+
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al insertar los datos en la tabla Supermercado.EmpleadoEncriptado:';
+        PRINT ERROR_MESSAGE();
+        
+        IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
+            DROP TABLE #temporal;
+    END CATCH;
+END;
+GO
+
 CREATE OR ALTER PROCEDURE Ventas.InsertarMediosPago
     @rutaArchivo NVARCHAR(MAX)
 AS
@@ -217,7 +304,7 @@ BEGIN
             FROM OPENROWSET(
                 ''Microsoft.ACE.OLEDB.12.0'', 
                 ''Excel 12.0 Xml;HDR=NO;Database=' + @rutaArchivo + ''', 
-                ''SELECT * FROM [medios de pago$B3:C]''  -- Aquí se ajusta el rango
+                ''SELECT * FROM [medios de pago$B3:C]''  -- Aquï¿½ se ajusta el rango
             ) AS ExcelData';
 
         EXEC sp_executesql @sql;
