@@ -1,4 +1,4 @@
--- Trabajo Prï¿½ctico Integrador
+-- Trabajo Práctico Integrador
 -- Grupo 12, Integrantes:
 -- Didolich Martin Alejandro, 43664688
 -- Martinez Fabricio Solomita, 43871283
@@ -28,12 +28,6 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Services')
 BEGIN
     EXEC('CREATE SCHEMA Services');
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Supervisor')
-BEGIN
-    EXEC('CREATE SCHEMA Supervisor');
 END
 GO
 
@@ -91,24 +85,6 @@ GO
         );
     END
 	
-    IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.EmpleadoEncriptado') AND type IN (N'U'))
-	BEGIN
-		CREATE TABLE Supermercado.EmpleadoEncriptado (
-			EmpleadoID INT PRIMARY KEY IDENTITY(1,1),
-            Legajo INT UNIQUE,
-			Nombre VARBINARY(256) NOT NULL,            
-			Apellido VARBINARY(256) NOT NULL,          
-			Dni VARBINARY(256) NOT NULL,               
-			Direccion VARBINARY(256) NOT NULL,         
-			Email VARBINARY(256),                      
-			EmailEmpresa NVARCHAR(100),                
-			Cargo NVARCHAR(50) NOT NULL,               
-			SucursalID INT NOT NULL,
-			Turno NVARCHAR(30),                        
-			FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
-		);
-	END;
-
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Producto') AND type IN (N'U'))
     BEGIN
         CREATE TABLE Supermercado.Producto (

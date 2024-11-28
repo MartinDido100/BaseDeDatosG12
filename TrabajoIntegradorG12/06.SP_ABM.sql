@@ -52,7 +52,7 @@ BEGIN
     END
     ELSE
     BEGIN
-        PRINT 'La factura con este nï¿½mero ya existe y no se ha insertado.';
+        PRINT 'La factura con este número ya existe y no se ha insertado.';
     END
 END;
 GO
@@ -72,7 +72,7 @@ BEGIN
     END
     ELSE
     BEGIN
-        PRINT 'La sucursal en esta ciudad y direcciï¿½n ya existe y no se ha insertado.';
+        PRINT 'La sucursal en esta ciudad y dirección ya existe y no se ha insertado.';
     END
 END;
 GO
@@ -116,76 +116,6 @@ BEGIN
 END;
 GO
 
---INSERTAR EMPLEADO ENCRIPTADO
-CREATE OR ALTER PROCEDURE Supervisor.InsertarNuevoEmpleadoEncriptado --SOLO PARA Supervisores
-    @Legajo INT,
-    @NombreEmpleado NVARCHAR(100),
-    @Apellido NVARCHAR(100),
-    @Dni INT,
-    @Direccion NVARCHAR(100),
-    @Email NVARCHAR(100),
-    @EmailEmpresa NVARCHAR(100),
-    @Cargo NVARCHAR(50),
-    @SucursalID INT,
-    @Turno NVARCHAR(30),
-    @FraseClave NVARCHAR(128)
-AS
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM Supermercado.EmpleadoEncriptado 
-        WHERE Legajo = @Legajo 
-        OR Dni = EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni))
-    )
-    BEGIN
-        INSERT INTO Supermercado.EmpleadoEncriptado (Legajo, Nombre, Apellido, Dni, Direccion, Email, EmailEmpresa, Cargo, SucursalID, Turno)
-        VALUES (
-            @Legajo,
-            EncryptByPassPhrase(@FraseClave, @NombreEmpleado),
-            EncryptByPassPhrase(@FraseClave, @Apellido),
-            EncryptByPassPhrase(@FraseClave, CONVERT(NVARCHAR(100), @Dni)),
-            EncryptByPassPhrase(@FraseClave, @Direccion),
-            EncryptByPassPhrase(@FraseClave, @Email),
-            @EmailEmpresa,  
-            @Cargo,        
-            @SucursalID,
-            @Turno
-        );
-        PRINT 'Empleado insertado exitosamente con datos encriptados.';
-    END
-    ELSE
-    BEGIN
-        PRINT 'El empleado con este Legajo o DNI ya existe y no se ha insertado.';
-    END
-END;
-GO
-
-CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
-    @FraseClave NVARCHAR(128)
-AS
-BEGIN
-    BEGIN TRY
-        SELECT 
-            Legajo,
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Nombre)) AS Nombre,
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Apellido)) AS Apellido,
-            CONVERT(INT, DecryptByPassPhrase(@FraseClave, CONVERT(VARBINARY(256), Dni))) AS DNI, 
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Direccion)) AS Direccion,
-            CONVERT(NVARCHAR(100), DecryptByPassPhrase(@FraseClave, Email)) AS Email,
-            EmailEmpresa,
-            Cargo,
-            SucursalID,
-            Turno
-        FROM 
-            Supermercado.EmpleadoEncriptado;
-    END TRY
-    BEGIN CATCH
-        PRINT 'Error al desencriptar los datos de la tabla Supermercado.EmpleadoEncriptado:';
-        PRINT ERROR_MESSAGE();
-    END CATCH;
-END;
-GO
-
 -- INSERTAR NUEVO MEDIO DE PAGO
 CREATE OR ALTER PROCEDURE Ventas.InsertarNuevoMedioPago
     @MedioPagoName VARCHAR(50),
@@ -204,7 +134,7 @@ BEGIN
 END;
 GO
 
--- BORRADO Lï¿½GICO DE PRODUCTO
+-- BORRADO LÓGICO DE PRODUCTO
 CREATE OR ALTER PROCEDURE Supermercado.EliminarProducto
     @ProductoID INT
 AS
@@ -215,7 +145,7 @@ BEGIN
         BEGIN
             DECLARE @FechaActual DATETIME = GETDATE();
             UPDATE Supermercado.Producto SET deleted_at = @FechaActual WHERE ProductoID = @ProductoID;
-            PRINT 'Producto eliminado lï¿½gicamente exitosamente.';
+            PRINT 'Producto eliminado lógicamente exitosamente.';
         END
         ELSE
         BEGIN
@@ -245,14 +175,14 @@ BEGIN
 
             IF EXISTS (SELECT 1 FROM Ventas.LineaFactura WHERE FacturaID = @FacturaID AND ProductoID = @ProductoID)
             BEGIN
-                PRINT 'El producto ya estï¿½ en la factura.';
+                PRINT 'El producto ya está en la factura.';
             END
             ELSE
             BEGIN
 
                 INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, PrecioU)
                 VALUES (@FacturaID, @ProductoID, @Cantidad, @PrecioU);
-                PRINT 'Lï¿½nea de producto creada exitosamente.';
+                PRINT 'Línea de producto creada exitosamente.';
             END
         END
         ELSE
@@ -261,7 +191,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        PRINT 'Error al crear la lï¿½nea de producto:';
+        PRINT 'Error al crear la línea de producto:';
         PRINT ERROR_MESSAGE();
     END CATCH
 END;
