@@ -67,7 +67,7 @@ GO
         CREATE TABLE Supermercado.Cliente (
             ClienteID INT PRIMARY KEY IDENTITY(1,1),
             TipoCliente VARCHAR(30) NOT NULL,  
-            Genero CHAR(1),
+            Genero VARCHAR(20)
         );
     END
 
@@ -106,6 +106,14 @@ GO
 			FOREIGN KEY (SucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
 		);
 	END;
+
+	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Categoria') AND type IN (N'U'))
+    BEGIN
+		CREATE TABLE Supermercado.Categoria (
+			ID INT PRIMARY KEY IDENTITY(1,1),
+			Descripcion VARCHAR(100)
+		);
+	END
 
     IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Producto') AND type IN (N'U'))
     BEGIN
@@ -149,7 +157,7 @@ GO
             IdentificadorPago VARCHAR(50) NULL,
 			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(EmpleadoID),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
-			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID)
+			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID),
 			FOREIGN KEY (clienteID) REFERENCES Supermercado.Cliente(ClienteID)
         );
     END
@@ -181,12 +189,4 @@ GO
 			FOREIGN KEY (LineaFacturaID) REFERENCES Ventas.LineaFactura(IDLineaFactura),
         );
     END
-
-	IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Supermercado.Categoria') AND type IN (N'U'))
-    BEGIN
-		CREATE TABLE Supermercado.Categoria (
-			ID INT PRIMARY KEY IDENTITY(1,1),
-			Descripcion VARCHAR(100)
-		);
-	END
 GO

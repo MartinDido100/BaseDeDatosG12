@@ -6,7 +6,7 @@ GO
 
 -- INSERTAR EN TABLA PRODUCTO
 CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevoProducto
-    @Categoria VARCHAR(200),
+    @CategoriaID INT,
     @NombreProducto VARCHAR(200),
     @PrecioUnitario DECIMAL(10, 2),
     @PrecioUnitarioUsd DECIMAL(10, 2),
@@ -18,8 +18,8 @@ BEGIN
     BEGIN
         DECLARE @FechaActual DATETIME;
         SET @FechaActual = GETDATE();
-        INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
-        VALUES (@Categoria, @NombreProducto, @PrecioUnitario, @PrecioReferencia, @UnidadReferencia, @FechaActual);
+        INSERT INTO Supermercado.Producto (CategoriaID, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
+        VALUES (@CategoriaID, @NombreProducto, @PrecioUnitario, @PrecioReferencia, @UnidadReferencia, @FechaActual);
     END
     ELSE
     BEGIN
@@ -34,13 +34,14 @@ CREATE OR ALTER PROCEDURE Ventas.CrearFactura
     @TipoFactura VARCHAR(10),
     @Sucursal INT,
     @Cliente INT,
-    @Hora TIME,
     @MedioPago INT,
     @Empleado INT
 AS
 BEGIN
     DECLARE @Fecha DATETIME;
+	DECLARE @Hora TIME;
     SET @Fecha = GETDATE();
+	SET @Hora = CONVERT(TIME, GETDATE());
     
     IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
     BEGIN
@@ -79,14 +80,12 @@ GO
 
 -- INSERTAR NUEVO CLIENTE
 CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevoCliente
-    @NombreCliente VARCHAR(100),
-    @CiudadCliente VARCHAR(100),
     @TipoCliente VARCHAR(30),
     @Genero CHAR(1)
 AS
 BEGIN
-    INSERT INTO Supermercado.Cliente (Nombre, Ciudad, TipoCliente, Genero)
-    VALUES (@NombreCliente, @CiudadCliente, @TipoCliente, @Genero);
+    INSERT INTO Supermercado.Cliente (TipoCliente, Genero)
+    VALUES (@TipoCliente, @Genero);
 END;
 GO
 
@@ -204,7 +203,7 @@ BEGIN
 END;
 GO
 
--- BORRADO L�GICO DE PRODUCTO
+-- BORRADO LOGICO DE PRODUCTO
 CREATE OR ALTER PROCEDURE Supermercado.EliminarProducto
     @ProductoID INT
 AS
@@ -305,22 +304,24 @@ BEGIN
         c.Genero AS [GENERO],
         p.NombreProducto AS [PRODUCTO],
         p.PrecioUnitario AS [PRECIO UNITARIO],
-        f.Cantidad AS [CANTIDAD],
+        l.Cantidad AS [CANTIDAD],
         f.Fecha AS [FECHA],
         mp.Descripcion AS [MEDIO DE PAGO],
         e.Legajo AS [EMPLEADO],
         s.Ciudad AS [SUCURSAL]
     FROM 
         Ventas.Factura f
+    JOIN
+        Ventas.LineaFactura l ON l.FacturaID = f.IDFactura
     JOIN 
-        Supermercado.Cliente c ON f.Cliente = c.ClienteID
+        Supermercado.Cliente c ON f.clienteID = c.ClienteID
     JOIN 
-        Supermercado.Producto p ON f.Producto = p.ProductoID
+        Supermercado.Producto p ON l.ProductoID = p.ProductoID
     JOIN 
         Ventas.MediosPago mp ON f.MedioPago = mp.MedioPagoName
     JOIN 
         Supermercado.Empleado e ON f.Empleado = e.Legajo
     JOIN 
-        Supermercado.Sucursal s ON f.Sucursal = s.SucursalID;
+        Supermercado.Sucursal s ON f.sucursalID = s.SucursalID;
 END;
 GO

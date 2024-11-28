@@ -7,7 +7,7 @@ CREATE OR ALTER PROCEDURE Ventas.InsertarEnTablaFacturas
     @rutaArchivo NVARCHAR(MAX)
 AS
 BEGIN
-	SET NOCOUNT ON;
+    SET NOCOUNT ON;
     BEGIN TRY
         CREATE TABLE #temp (
             nroFactura VARCHAR(50),
@@ -40,41 +40,26 @@ BEGIN
 
         EXEC sp_executesql @sql;
 
-		--Reemplazamo caracteres 
-		UPDATE #temp
-		set Producto = REPLACE(producto,'ÃƒÂº','ú')
-		where Producto like '%ÃƒÂº%'
-
-		UPDATE #temp
-		set Producto = REPLACE(producto,'Ã³','ó')
-		where Producto like '%Ã³%'
-
-		UPDATE #temp
-		SET Producto = REPLACE(Producto, 'Ãº', 'ú')
-		WHERE Producto LIKE '%Ãº%';
-
-		UPDATE #temp
-		SET Producto = REPLACE(Producto, 'Ã©', 'é')
-		WHERE Producto LIKE '%Ã©%';
-
-		UPDATE #temp
-		SET Producto = REPLACE(Producto, 'Ã±', 'ñ')
-		WHERE Producto LIKE '%Ã±%';
-
-		UPDATE #temp
-		SET Producto = REPLACE(Producto, 'Ã¡', 'á')
-		WHERE Producto LIKE '%Ã¡%';
-
-		--modifica la Ã pero deja un espacio por ejemplo el 16 Tónica zero calorí­-as Schweppes
-		UPDATE #temp
-		SET Producto = REPLACE(Producto, 'Ã', 'í')
-		WHERE Producto LIKE '%Ã%';
-
-		UPDATE #temp
-		SET Producto = REPLACE(Producto, 'Âº', 'º')
-		WHERE Producto LIKE '%Âº%';
+        -- Reemplazar caracteres en los productos
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'ÃƒÂº', 'ú') WHERE Producto LIKE '%ÃƒÂº%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Ã³', 'ó') WHERE Producto LIKE '%Ã³%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Ãº', 'ú') WHERE Producto LIKE '%Ãº%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Ã©', 'é') WHERE Producto LIKE '%Ã©%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Ã±', 'ñ') WHERE Producto LIKE '%Ã±%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Ã¡', 'á') WHERE Producto LIKE '%Ã¡%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Ã', 'í') WHERE Producto LIKE '%Ã%';
+        UPDATE #temp
+        SET Producto = REPLACE(Producto, 'Âº', 'º') WHERE Producto LIKE '%Âº%';
 
         DECLARE @FacturaID INT;
+        DECLARE @ClienteID INT;
 
         DECLARE cursor_facturas CURSOR FOR 
         SELECT * FROM #temp;
@@ -99,44 +84,61 @@ BEGIN
 
         WHILE @@FETCH_STATUS = 0
         BEGIN
+            -- Verificar si el cliente existe
+            SELECT @ClienteID = ClienteID
+            FROM Supermercado.Cliente
+            WHERE TipoCliente = @TipoCliente AND Genero = @Genero;
 
-           IF EXISTS (SELECT 1 FROM Supermercado.Empleado WHERE Legajo = @Empleado)
-		   AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE NombreProducto = @Producto AND deleted_at IS NULL)
+            -- Si el cliente no existe, insertarlo
+            IF @ClienteID IS NULL
             BEGIN
+                INSERT INTO Supermercado.Cliente (TipoCliente, Genero)
+                VALUES (@TipoCliente, @Genero);
 
+                -- Obtener el ClienteID recién insertado
+                SET @ClienteID = SCOPE_IDENTITY();
+            END
+
+            -- Verificar si el empleado y el producto existen
+            IF EXISTS (SELECT 1 FROM Supermercado.Empleado WHERE Legajo = @Empleado)
+               AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE NombreProducto = @Producto AND deleted_at IS NULL)
+            BEGIN
+                -- Insertar la factura si no existe
                 IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
                 BEGIN
-                    INSERT INTO Ventas.Factura (nroFactura, TipoFactura, sucursalID, Fecha, Hora, MedioPago, Empleado, IdentificadorPago)
+                    INSERT INTO Ventas.Factura (nroFactura, TipoFactura, sucursalID, Fecha, Hora, MedioPago, Empleado, IdentificadorPago, ClienteID)
                     VALUES (
                         @nroFactura, 
                         @TipoFactura, 
-                        (SELECT SucursalID FROM Supermercado.Sucursal WHERE CiudadFake = @Ciudad), -- Asigna sucursalID desde el Empleado
+                        (SELECT TOP 1 SucursalID FROM Supermercado.Sucursal WHERE CiudadFake = @Ciudad), 
                         @Fecha, 
                         @Hora, 
-                        (SELECT IdMedioPago FROM Ventas.MediosPago WHERE Descripcion = @MedioPago), 
-                        (SELECT EmpleadoID FROM Supermercado.Empleado WHERE Legajo = @Empleado), -- Asigna EmpleadoID, no Legajo
-                        @IdentificadorPago
+                        (SELECT TOP 1 IdMedioPago FROM Ventas.MediosPago WHERE Descripcion = @MedioPago), 
+                        (SELECT TOP 1 EmpleadoID FROM Supermercado.Empleado WHERE Legajo = @Empleado), 
+                        @IdentificadorPago,
+                        @ClienteID -- Asignar el ClienteID al insertar la factura
                     );
 
                     SET @FacturaID = SCOPE_IDENTITY(); -- Captura el ID de la factura insertada
-				END
+                END
                 ELSE
-				BEGIN
-					 SELECT @FacturaID = IDFactura FROM Ventas.Factura WHERE nroFactura = @nroFactura;
-				END
+                BEGIN
+                    SELECT @FacturaID = IDFactura FROM Ventas.Factura WHERE nroFactura = @nroFactura;
+                END
 
-				INSERT INTO Ventas.LineaFactura (Cantidad, ProductoID, FacturaID, PrecioU)
-				SELECT 
-					@Cantidad, 
-					(SELECT ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto), 
-					@FacturaID, 
-					@PrecioUnitario 
-					WHERE NOT EXISTS (
-						SELECT 1
-						FROM Ventas.LineaFactura
-						WHERE FacturaID = @FacturaID
-						AND ProductoID = (SELECT ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto)
-					);
+                -- Insertar en la línea de factura
+                INSERT INTO Ventas.LineaFactura (Cantidad, ProductoID, FacturaID, PrecioU)
+                SELECT 
+                    @Cantidad, 
+                    (SELECT TOP 1 ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto), 
+                    @FacturaID, 
+                    @PrecioUnitario 
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM Ventas.LineaFactura
+                    WHERE FacturaID = @FacturaID
+                    AND ProductoID = (SELECT TOP 1 ProductoID FROM Supermercado.Producto WHERE NombreProducto = @Producto)
+                );
             END
 
             FETCH NEXT FROM cursor_facturas INTO @nroFactura, @TipoFactura, @Ciudad, @TipoCliente, @Genero, @Producto, @PrecioUnitario, @Cantidad, @Fecha, @Hora, @MedioPago, @Empleado, @IdentificadorPago;

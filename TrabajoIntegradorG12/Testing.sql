@@ -23,36 +23,35 @@ EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
 EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
 
 --2 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 -- 3
-EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarEmpleados 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
 --4
-EXEC Supermercado.InsertarCategorias 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarCategorias 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
 -- 5
-EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
+EXEC Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
 --6 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\catalogo.csv'
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\Productos_importados.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
 GO
-
-
 
 
 --6 Importacion de facturas
-EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Ventas_registradas.csv'
+EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Ventas_registradas.csv'
 GO
+
 
 --8 Scripts varios y comunes (ejecutar en cualquier orden)
 
@@ -72,7 +71,7 @@ EXEC Supermercado.InsertarNuevoEmpleado
     @EmailEmpresa = 'ana.lopez@supermercado.com',
     @Cargo = 'Cajero',
     @SucursalID = 1, -- ID de la sucursal
-    @Turno = 'Ma�ana';
+    @Turno = 'Mañana';
 
 
 -- Insertar una nueva sucursal
@@ -103,7 +102,6 @@ EXEC Supermercado.InsertarNuevoProducto
 
 -- Insertar un nuevo producto erroneo
 EXEC Supermercado.InsertarNuevoProducto
-    @Categoria = 'Alimentos',
     @NombreProducto = 'Pan',
     @PrecioUnitario = 50.00,
     @PrecioUnitarioUsd = 0.25,
@@ -124,6 +122,8 @@ EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5,
 
 -- Pagar factura
 EXEC Ventas.PagarFactura @IDFactura = 3347, @IdentificadorPago = 'ABCD1234';
+
+EXEC Ventas.MostrarReporteVentas;
 
 
 EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;

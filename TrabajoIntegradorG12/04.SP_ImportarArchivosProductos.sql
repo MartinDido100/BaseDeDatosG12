@@ -4,11 +4,13 @@
 USE Com5600G12;
 GO
 
+
 CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosCatalogo
     @rutaArchivo NVARCHAR(MAX)
 AS
 BEGIN
     BEGIN TRY
+        -- Crear la tabla temporal para cargar el archivo
         CREATE TABLE #temporal (
             id NVARCHAR(MAX),              
             category NVARCHAR(MAX) NOT NULL, 
@@ -19,6 +21,7 @@ BEGIN
             date NVARCHAR(MAX) NOT NULL    
         );
 
+        -- Insertar datos desde el archivo CSV
         DECLARE @sql NVARCHAR(MAX) = N'
             BULK INSERT #temporal
             FROM ''' + @rutaArchivo + '''
@@ -34,48 +37,24 @@ BEGIN
 
         EXEC sp_executesql @sql;
 
-		--Reemplazamo caracteres 
-		UPDATE #temporal
-		set name = REPLACE(name,'ÃƒÂº','ú')
-		where name like '%ÃƒÂº%'
+        INSERT INTO Supermercado.Categoria (Descripcion)
+        SELECT DISTINCT category
+        FROM #temporal
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM Supermercado.Categoria c
+            WHERE c.Descripcion = #temporal.category
+        );
 
-		UPDATE #temporal
-		set name = REPLACE(name,'Ã³','ó')
-		where name like '%Ã³%'
-
-		UPDATE #temporal
-		SET name = REPLACE(name, 'Ãº', 'ú')
-		WHERE name LIKE '%Ãº%';
-
-		UPDATE #temporal
-		SET name = REPLACE(name, 'Ã©', 'é')
-		WHERE name LIKE '%Ã©%';
-
-		UPDATE #temporal
-		SET name = REPLACE(name, 'Ã±', 'ñ')
-		WHERE name LIKE '%Ã±%';
-
-		UPDATE #temporal
-		SET name = REPLACE(name, 'Ã¡', 'á')
-		WHERE name LIKE '%Ã¡%';
-
-		--modifica la Ã pero deja un espacio por ejemplo el 16 Tónica zero calorí­-as Schweppes
-		UPDATE #temporal
-		SET name = REPLACE(name, 'Ã', 'í')
-		WHERE name LIKE '%Ã%';
-
-		UPDATE #temporal
-		SET name = REPLACE(name, 'Âº', 'º')
-		WHERE name LIKE '%Âº%';
-
-        INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
+        -- Insertar productos en la tabla Supermercado.Producto
+        INSERT INTO Supermercado.Producto (CategoriaID, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT
-			(SELECT ID FROM Supermercado.Categoria WHERE Descripcion = category) AS Categoria,
-            REPLACE(name, N'?', N'ñ') AS NombreProducto,
-            TRY_CAST(price AS DECIMAL(10, 2)) AS PrecioUnitario,
-            TRY_CAST(reference_price AS DECIMAL(10, 2)) AS PrecioReferencia,
-            reference_unit AS UnidadReferencia,
-            TRY_CAST(date AS DATETIME) AS Fecha
+            (SELECT ID FROM Supermercado.Categoria WHERE Descripcion = t.category) AS CategoriaID,
+            t.name AS NombreProducto,
+            TRY_CAST(t.price AS DECIMAL(10, 2)) AS PrecioUnitario,
+            TRY_CAST(t.reference_price AS DECIMAL(10, 2)) AS PrecioReferencia,
+            t.reference_unit AS UnidadReferencia,
+            t.date AS Fecha
         FROM (
             SELECT 
                 category,
@@ -84,27 +63,28 @@ BEGIN
                 reference_price,
                 reference_unit,
                 date,
-                ROW_NUMBER() OVER (PARTITION BY name ORDER BY TRIM(LOWER(category))) AS RowNum
+                ROW_NUMBER() OVER (PARTITION BY name ORDER BY category) AS RowNum
             FROM #temporal
             WHERE 
                 TRY_CAST(price AS DECIMAL(10, 2)) IS NOT NULL AND
                 TRY_CAST(reference_price AS DECIMAL(10, 2)) IS NOT NULL AND
                 TRY_CAST(date AS DATETIME) IS NOT NULL
-        ) AS subquery
-        WHERE RowNum = 1 AND 
+        ) AS t
+        WHERE t.RowNum = 1 AND 
         NOT EXISTS (
             SELECT 1
             FROM Supermercado.Producto p
-            WHERE p.NombreProducto = subquery.name
+            WHERE p.NombreProducto = t.name
         );
 
+        -- Eliminar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY
     BEGIN CATCH
         PRINT 'Error al insertar los datos en la tabla Supermercado.Producto:';
         PRINT ERROR_MESSAGE();
-        
+
         IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
             DROP TABLE #temporal;
     END CATCH;
@@ -113,38 +93,54 @@ GO
 
 
 
-
 CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosElectronicos
     @rutaArchivo NVARCHAR(MAX)
 AS
 BEGIN
     BEGIN TRY
-		DECLARE @tipoCambio DECIMAL(10, 4);
+        -- Verificar si la categoría "Electrónicos" existe y obtener su ID
+        DECLARE @CategoriaID INT;
 
-		EXEC Services.ObtenerTipoCambioUsdToArs @tipoCambio OUTPUT;
+        IF NOT EXISTS (SELECT 1 FROM Supermercado.Categoria WHERE Descripcion = 'Electronicos')
+        BEGIN
+            INSERT INTO Supermercado.Categoria (Descripcion)
+            VALUES ('Electronicos');
+        END
 
+        SELECT @CategoriaID = ID
+        FROM Supermercado.Categoria
+        WHERE Descripcion = 'Electronicos';
+
+        -- Declarar la variable para el tipo de cambio
+        DECLARE @tipoCambio DECIMAL(10, 4);
+
+        EXEC Services.ObtenerTipoCambioUsdToArs @tipoCambio OUTPUT;
+
+        -- Crear la tabla temporal
         CREATE TABLE #temporal (
-            Product NVARCHAR(MAX) NOT NULL,       
+            Product NVARCHAR(MAX) NOT NULL,
             PrecioEnDolares NVARCHAR(MAX) NOT NULL
         );
 
-		DECLARE @sql NVARCHAR(MAX) = '
-			INSERT INTO #temporal
-			SELECT *
-			FROM OPENROWSET(
-				''Microsoft.ACE.OLEDB.12.0'', 
-				''Excel 12.0 Xml;HDR=YES;Database=' + @rutaArchivo + ''', 
-				''SELECT * FROM [Sheet1$]''
-			) AS ExcelData;
-		';
+        -- Insertar datos desde el archivo Excel
+        DECLARE @sql NVARCHAR(MAX) = '
+            INSERT INTO #temporal
+            SELECT *
+            FROM OPENROWSET(
+                ''Microsoft.ACE.OLEDB.12.0'', 
+                ''Excel 12.0 Xml;HDR=YES;Database=' + @rutaArchivo + ''', 
+                ''SELECT * FROM [Sheet1$]''
+            ) AS ExcelData;
+        ';
 
         EXEC sp_executesql @sql;
 
-        INSERT INTO Supermercado.Producto (Categoria, NombreProducto,PrecioUnitario, PrecioUnitarioUsd, Fecha)
+        -- Insertar productos en la tabla Supermercado.Producto
+        INSERT INTO Supermercado.Producto (CategoriaID, NombreProducto, PrecioUnitario, PrecioUnitarioUsd, Fecha)
         SELECT 
-            'Electronicos' AS Categoria,
+            @CategoriaID AS CategoriaID,
             Product AS NombreProducto,
-			TRY_CAST(PrecioEnDolares AS DECIMAL(10, 2)) * @tipoCambio AS PrecioUnitario,
+            TRY_CAST(PrecioEnDolares AS DECIMAL(10, 2)) * @tipoCambio AS PrecioUnitario,
             TRY_CAST(PrecioEnDolares AS DECIMAL(10, 2)) AS PrecioUnitarioUsd,
             GETDATE() AS Fecha
         FROM (
@@ -155,24 +151,26 @@ BEGIN
             FROM #temporal
         ) AS subquery
         WHERE RowNum = 1 AND 
-		NOT EXISTS (
-			SELECT 1
-			FROM Supermercado.Producto p
-			WHERE p.NombreProducto = subquery.Product
-		);
+        NOT EXISTS (
+            SELECT 1
+            FROM Supermercado.Producto p
+            WHERE p.NombreProducto = subquery.Product
+        );
 
+        -- Eliminar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY
     BEGIN CATCH
         PRINT 'Error al insertar los datos en la tabla Supermercado.Producto:';
         PRINT ERROR_MESSAGE();
-        
+
         IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
             DROP TABLE #temporal;
     END CATCH;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE Supermercado.InsertarProductosImportados
     @rutaArchivo NVARCHAR(MAX)
@@ -200,11 +198,21 @@ BEGIN
 
         EXEC sp_executesql @sql;
 
-        INSERT INTO Supermercado.Producto (NombreProducto,UnidadReferencia,Categoria,Proveedor,PrecioUnitario, Fecha)
+        INSERT INTO Supermercado.Categoria (Descripcion)
+        SELECT DISTINCT Categoria
+        FROM #temporal
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM Supermercado.Categoria c
+            WHERE c.Descripcion = Categoria
+        );
+
+
+        INSERT INTO Supermercado.Producto (NombreProducto,UnidadReferencia,CategoriaID,Proveedor,PrecioUnitario, Fecha)
         SELECT  
 			NombreProducto,
 			CantidadPorUnidad AS UnidadReferencia,
-			Categoria,
+			CategoriaID,
 			Proveedor,
             TRY_CAST(PrecioUnidad AS DECIMAL(10, 2)) AS PrecioUnitario,
             GETDATE() AS Fecha
@@ -213,7 +221,7 @@ BEGIN
                 NombreProducto,
                 PrecioUnidad,
 				Proveedor,
-				Categoria,
+				(SELECT ID FROM Supermercado.Categoria WHERE Descripcion = Categoria) AS CategoriaID,
 				CantidadPorUnidad,
                 ROW_NUMBER() OVER (PARTITION BY NombreProducto ORDER BY IdProducto) AS RowNum
             FROM #temporal
