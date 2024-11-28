@@ -19,53 +19,40 @@ EXEC Supervisor.CrearRolesConPermisos;
 EXEC sp_addrolemember 'Empleado', 'martin';
 
 --3 Execs para crear un par de logins adicionales
-EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
-EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
+EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseÃ±a'
+EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseÃ±a'
 
---4 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
+--2 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
+EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
+GO
+-- 3
+EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 
-EXEC Supermercado.InsertarEmpleados 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
+--4
+EXEC Supermercado.InsertarCategorias 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 
-EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
+-- 5
+EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Informacion_complementaria.xlsx'
 GO
 
-EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Informacion_complementaria.xlsx'
+--6 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\catalogo.csv'
 GO
 
---5 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\catalogo.csv'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Productos\Productos_importados.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Productos\Productos_importados.xlsx'
-GO
 
--- Insertar un nuevo cliente
-EXEC Supermercado.InsertarNuevoCliente 
-    @NombreCliente = 'Juan Perez',
-    @CiudadCliente = 'Montevideo',
-    @TipoCliente = 'Mayorista',
-    @Genero = 'M';
 
-SELECT * FROM Supermercado.Cliente
 
 --6 Importacion de facturas
-EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDATOG12\BaseDeDatosG12\Ventas_registradas.csv'
+EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\Com5600_Grupo12_Entrega05\Ventas_registradas.csv'
 GO
-
---7 Generar nota de credito (Cambiar el ID de factura en caso de necesitarse)
---Factura pagada y habilitada para nota de credito
-EXEC Supervisor.GenerarNotaDeCredito 775;
-
---Factura no pagada y habilitada para nota de credito
-EXEC Supervisor.GenerarNotaDeCredito 774;
-
-
 
 --8 Scripts varios y comunes (ejecutar en cualquier orden)
 
@@ -85,7 +72,7 @@ EXEC Supermercado.InsertarNuevoEmpleado
     @EmailEmpresa = 'ana.lopez@supermercado.com',
     @Cargo = 'Cajero',
     @SucursalID = 1, -- ID de la sucursal
-    @Turno = 'Mañana';
+    @Turno = 'Maï¿½ana';
 
 
 -- Insertar una nueva sucursal
@@ -102,7 +89,7 @@ EXEC Ventas.CrearFactura
     @Sucursal = 1,
     @Cliente = 1,
     @Hora = '12:30:00',
-    @MedioPago = 1,  -- Aquí, el MedioPago debe ser un número, no una cadena (como se define en el procedimiento)
+    @MedioPago = 1,  -- Aquï¿½, el MedioPago debe ser un nï¿½mero, no una cadena (como se define en el procedimiento)
     @Empleado = 1;
 
 -- Insertar un nuevo producto
@@ -114,14 +101,36 @@ EXEC Supermercado.InsertarNuevoProducto
     @PrecioReferencia = 45.00,
     @UnidadReferencia = 'Kg';
 
+-- Insertar un nuevo producto erroneo
+EXEC Supermercado.InsertarNuevoProducto
+    @Categoria = 'Alimentos',
+    @NombreProducto = 'Pan',
+    @PrecioUnitario = 50.00,
+    @PrecioUnitarioUsd = 0.25,
+    @PrecioReferencia = 45.00,
+    @UnidadReferencia = 'Kg';
+
 --Borrado logico de producto
 EXEC Supermercado.EliminarProducto @ProductoID = 1;
 
---Crear linea de factura
-EXEC Ventas.CrearLineaFactura @FacturaID = 3347, @ProductoID = 1, @Cantidad = 5, @Subtotal = 150.00;
 
---Crear linea de factura erronea
-EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5, @Subtotal = 150.00;
+select * from Ventas.Factura
+select * from Supermercado.Producto
+--Crear linea de factura
+EXEC Ventas.CrearLineaFactura @FacturaID = 1, @ProductoID = 1, @Cantidad = 5, @PrecioU = 150.00;
+
+--Crear linea de factura inexistente
+EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5, @PrecioU = 150.00;
 
 -- Pagar factura
 EXEC Ventas.PagarFactura @IDFactura = 3347, @IdentificadorPago = 'ABCD1234';
+
+
+EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;
+EXEC Reporte.ReporteFacturadoPorTurnoTrimestralXML 2019,1;
+EXEC Reporte.ReporteTop5ProductosPorSemanaXML 3,2019;
+EXEC Reporte.ReporteMenosVendidosPorMesXML 3,2019;
+
+EXEC Reporte.ReporteVentasPorCiudadPorRangoDeFechasXML'2019-3-01','2019-3-31';        
+
+EXEC Reporte.ReporteVentasPorSucursalYFechaXML '2019-3-01','Ramos mejia'

@@ -17,7 +17,7 @@ BEGIN
     TO DISK = @NombreArchivo
     WITH INIT, FORMAT;
 
-    PRINT 'Respaldo completo realizado con éxito: ' + @NombreArchivo;
+    PRINT 'Respaldo completo realizado con Exito: ' + @NombreArchivo;
 END;
 GO
 
@@ -40,7 +40,7 @@ BEGIN
     TO DISK = @NombreArchivo
     WITH DIFFERENTIAL, INIT, FORMAT;
 
-    PRINT 'Respaldo diferencial realizado con éxito: ' + @NombreArchivo;
+    PRINT 'Respaldo diferencial realizado con ï¿½xito: ' + @NombreArchivo;
 END;
 GO
 
@@ -61,7 +61,7 @@ BEGIN
     TO DISK = @NombreArchivo
     WITH INIT, FORMAT;
 
-    PRINT 'Respaldo del log realizado con éxito: ' + @NombreArchivo;
+    PRINT 'Respaldo del log realizado con ï¿½xito: ' + @NombreArchivo;
 END;
 GO
 
@@ -101,9 +101,9 @@ BEGIN
     PRINT 'Restaurando respaldo de log...'
     RESTORE LOG @BaseDeDatos
     FROM DISK = @ArchivoLog
-    WITH RECOVERY, FILE = 1; -- Con recovery para finalizar la restauración
+    WITH RECOVERY, FILE = 1; -- Con recovery para finalizar la restauraciï¿½n
 
-    PRINT 'Base de datos restaurada con éxito.'
+    PRINT 'Base de datos restaurada con ï¿½xito.'
 END
 GO
 

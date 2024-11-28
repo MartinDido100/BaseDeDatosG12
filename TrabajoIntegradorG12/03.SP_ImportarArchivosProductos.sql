@@ -69,8 +69,8 @@ BEGIN
 		WHERE name LIKE '%ยบ%';
 
         INSERT INTO Supermercado.Producto (Categoria, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
-        SELECT 
-            category AS Categoria,
+        SELECT
+			(SELECT ID FROM Supermercado.Categoria WHERE Descripcion = category) AS Categoria,
             REPLACE(name, N'?', N'๑') AS NombreProducto,
             TRY_CAST(price AS DECIMAL(10, 2)) AS PrecioUnitario,
             TRY_CAST(reference_price AS DECIMAL(10, 2)) AS PrecioReferencia,

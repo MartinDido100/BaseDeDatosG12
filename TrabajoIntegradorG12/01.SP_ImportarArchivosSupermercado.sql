@@ -65,6 +65,55 @@ BEGIN
     END CATCH;
 END;
 GO
+CREATE OR ALTER PROCEDURE Supermercado.InsertarCategorias
+    @rutaArchivo NVARCHAR(MAX)
+AS
+BEGIN
+    BEGIN TRY
+        CREATE TABLE #temporal (
+            LineaProducto NVARCHAR(MAX) NOT NULL,
+            Descripcion NVARCHAR(MAX) NOT NULL
+        );
+
+        DECLARE @sql NVARCHAR(MAX) = '
+            INSERT INTO #temporal
+            SELECT *
+            FROM OPENROWSET(
+                ''Microsoft.ACE.OLEDB.12.0'', 
+                ''Excel 12.0 Xml;HDR=YES;Database=' + @rutaArchivo + ''', 
+                ''SELECT * FROM [Clasificacion productos$]''
+            ) AS ExcelData;
+        ';
+
+        EXEC sp_executesql @sql;
+
+        INSERT INTO Supermercado.Categoria (Descripcion)
+        SELECT DISTINCT
+            Descripcion
+        FROM (
+            SELECT 
+                Descripcion,
+                ROW_NUMBER() OVER (PARTITION BY Descripcion ORDER BY LineaProducto) AS RowNum
+            FROM #temporal
+        ) AS subquery
+        WHERE RowNum = 1 
+          AND NOT EXISTS (
+                SELECT 1 
+                FROM Supermercado.Categoria c
+                WHERE c.Descripcion = subquery.Descripcion
+          );
+
+        DROP TABLE #temporal;
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al insertar los datos en la tabla Supermercado.Categoria:';
+        PRINT ERROR_MESSAGE();
+        
+        IF OBJECT_ID('tempdb..#temporal') IS NOT NULL
+            DROP TABLE #temporal;
+    END CATCH;
+END;
+GO
 
 CREATE OR ALTER PROCEDURE Supermercado.InsertarEmpleados --solo el admin por logica
     @rutaArchivo NVARCHAR(MAX)
@@ -128,7 +177,7 @@ BEGIN
         JOIN 
             Supermercado.Sucursal s ON subquery.Sucursal = s.Ciudad
         WHERE 
-            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Dirección
+            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Direcciï¿½n
             AND NOT EXISTS (
                 SELECT 1 
                 FROM Supermercado.Empleado e 
@@ -148,7 +197,8 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Supervisor.InsertarEmpleadosEncriptado --solo el Supervisor por que el solo sabe la contraseña
+
+CREATE OR ALTER PROCEDURE Supervisor.InsertarEmpleadosEncriptado --solo el Supervisor por que el solo sabe la contraseï¿½a
     @rutaArchivo NVARCHAR(MAX),
     @fraseClave NVARCHAR(128)
 AS
@@ -235,7 +285,6 @@ BEGIN
 END;
 GO
 
-
 CREATE OR ALTER PROCEDURE Ventas.InsertarMediosPago
     @rutaArchivo NVARCHAR(MAX)
 AS
@@ -255,7 +304,7 @@ BEGIN
             FROM OPENROWSET(
                 ''Microsoft.ACE.OLEDB.12.0'', 
                 ''Excel 12.0 Xml;HDR=NO;Database=' + @rutaArchivo + ''', 
-                ''SELECT * FROM [medios de pago$B3:C]''  -- Aquí se ajusta el rango
+                ''SELECT * FROM [medios de pago$B3:C]''  -- Aquï¿½ se ajusta el rango
             ) AS ExcelData';
 
         EXEC sp_executesql @sql;

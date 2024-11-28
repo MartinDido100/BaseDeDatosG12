@@ -1,11 +1,6 @@
 -- Script que crea procedures con consultas comunes, como agregar datos a tablas, actualizar y eliminar
 -- El orden de ejecucion es tal cual estan desarrollados
 
--- Crear/Borar LineaProducto
--- PagarFactura
--- Borrar Empleado
--- Actualizar Producto
-
 USE Com5600G12;
 GO
 
@@ -50,14 +45,14 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
     BEGIN
         INSERT INTO Ventas.Factura (
-            nroFactura, TipoFactura, sucursalID, Cliente, 
+            nroFactura, TipoFactura, sucursalID, 
             Fecha, Hora, MedioPago, Empleado)
         VALUES (
-            @nroFactura, @TipoFactura, @Sucursal, @Cliente, @Fecha, @Hora, @MedioPago, @Empleado);
+            @nroFactura, @TipoFactura, @Sucursal, @Fecha, @Hora, @MedioPago, @Empleado);
     END
     ELSE
     BEGIN
-        PRINT 'La factura con este número ya existe y no se ha insertado.';
+        PRINT 'La factura con este nï¿½mero ya existe y no se ha insertado.';
     END
 END;
 GO
@@ -77,7 +72,7 @@ BEGIN
     END
     ELSE
     BEGIN
-        PRINT 'La sucursal en esta ciudad y dirección ya existe y no se ha insertado.';
+        PRINT 'La sucursal en esta ciudad y direcciï¿½n ya existe y no se ha insertado.';
     END
 END;
 GO
@@ -209,7 +204,7 @@ BEGIN
 END;
 GO
 
--- BORRADO LÓGICO DE PRODUCTO
+-- BORRADO Lï¿½GICO DE PRODUCTO
 CREATE OR ALTER PROCEDURE Supermercado.EliminarProducto
     @ProductoID INT
 AS
@@ -220,7 +215,7 @@ BEGIN
         BEGIN
             DECLARE @FechaActual DATETIME = GETDATE();
             UPDATE Supermercado.Producto SET deleted_at = @FechaActual WHERE ProductoID = @ProductoID;
-            PRINT 'Producto eliminado lógicamente exitosamente.';
+            PRINT 'Producto eliminado lï¿½gicamente exitosamente.';
         END
         ELSE
         BEGIN
@@ -234,20 +229,31 @@ BEGIN
 END;
 GO
 
+--INSERTAR LINEA DE FACTURA
 CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura
     @FacturaID INT,
     @ProductoID INT,
     @Cantidad INT,
-    @Subtotal DECIMAL(10, 2)
+    @PrecioU DECIMAL(10, 2)
 AS
 BEGIN
     BEGIN TRY
+
         IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE IDFactura = @FacturaID)
-           AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
+            AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
         BEGIN
-            INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, Subtotal)
-            VALUES (@FacturaID, @ProductoID, @Cantidad, @Subtotal);
-            PRINT 'Línea de producto creada exitosamente.';
+
+            IF EXISTS (SELECT 1 FROM Ventas.LineaFactura WHERE FacturaID = @FacturaID AND ProductoID = @ProductoID)
+            BEGIN
+                PRINT 'El producto ya estï¿½ en la factura.';
+            END
+            ELSE
+            BEGIN
+
+                INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, PrecioU)
+                VALUES (@FacturaID, @ProductoID, @Cantidad, @PrecioU);
+                PRINT 'Lï¿½nea de producto creada exitosamente.';
+            END
         END
         ELSE
         BEGIN
@@ -255,12 +261,14 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        PRINT 'Error al crear la línea de producto:';
+        PRINT 'Error al crear la lï¿½nea de producto:';
         PRINT ERROR_MESSAGE();
     END CATCH
 END;
 GO
 
+
+--EMITIR FACTURA
 CREATE OR ALTER PROCEDURE Ventas.PagarFactura
     @IDFactura INT,
     @IdentificadorPago VARCHAR(100)
