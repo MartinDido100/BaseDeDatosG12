@@ -21,7 +21,7 @@ BEGIN
             date DATETIME NOT NULL
         );
 
-        -- Insertar datos desde el archivo CSV
+        -- Inserta datos desde el archivo CSV
         DECLARE @sql NVARCHAR(MAX) = N'
             BULK INSERT #temporal
             FROM ''' + @rutaArchivo + '''
@@ -46,7 +46,7 @@ BEGIN
             WHERE c.Descripcion = #temporal.category
         );
 
-        -- Insertar productos en la tabla Supermercado.Producto
+        -- Inserta productos en la tabla Supermercado.Producto desde la temporal
         INSERT INTO Supermercado.Producto (CategoriaID, NombreProducto, PrecioUnitario, PrecioReferencia, UnidadReferencia, Fecha)
         SELECT
             (SELECT ID FROM Supermercado.Categoria WHERE Descripcion = t.category) AS CategoriaID,
@@ -77,7 +77,6 @@ BEGIN
             WHERE p.NombreProducto = t.name
         );
 
-        -- Eliminar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY
@@ -111,18 +110,16 @@ BEGIN
         FROM Supermercado.Categoria
         WHERE Descripcion = 'Electronicos';
 
-        -- Declarar la variable para el tipo de cambio
         DECLARE @tipoCambio DECIMAL(10, 4);
 
         EXEC Services.ObtenerTipoCambioUsdToArs @tipoCambio OUTPUT;
 
-        -- Crear la tabla temporal
         CREATE TABLE #temporal (
             Product NVARCHAR(MAX) NOT NULL,
             PrecioEnDolares NVARCHAR(MAX) NOT NULL
         );
 
-        -- Insertar datos desde el archivo Excel
+        -- Inserta datos desde el archivo Excel
         DECLARE @sql NVARCHAR(MAX) = '
             INSERT INTO #temporal
             SELECT *
@@ -135,7 +132,7 @@ BEGIN
 
         EXEC sp_executesql @sql;
 
-        -- Insertar productos en la tabla Supermercado.Producto
+        -- Inserta productos en la tabla Supermercado.Producto desde la temporal
         INSERT INTO Supermercado.Producto (CategoriaID, NombreProducto, PrecioUnitario, PrecioUnitarioUsd, Fecha)
         SELECT 
             @CategoriaID AS CategoriaID,
@@ -157,7 +154,6 @@ BEGIN
             WHERE p.NombreProducto = subquery.Product
         );
 
-        -- Eliminar la tabla temporal
         DROP TABLE #temporal;
 
     END TRY

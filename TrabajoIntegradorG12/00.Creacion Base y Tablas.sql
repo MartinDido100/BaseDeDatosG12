@@ -1,4 +1,4 @@
--- Trabajo Pr�ctico Integrador
+-- Trabajo Practico Integrador
 -- Grupo 12, Integrantes:
 -- Didolich Martin Alejandro, 43664688
 -- Martinez Fabricio Solomita, 43871283

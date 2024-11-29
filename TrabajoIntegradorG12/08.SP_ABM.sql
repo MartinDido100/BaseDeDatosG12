@@ -97,37 +97,6 @@ END;
 GO
 
 
-
--- INSERTAR UNA NUEVA FACTURA
-CREATE OR ALTER PROCEDURE Ventas.CrearFactura
-    @nroFactura VARCHAR(50),
-    @TipoFactura VARCHAR(10),
-    @Sucursal INT,
-    @Cliente INT,
-    @MedioPago INT,
-    @Empleado INT
-AS
-BEGIN
-    DECLARE @Fecha DATETIME;
-	DECLARE @Hora TIME;
-    SET @Fecha = GETDATE();
-	SET @Hora = CONVERT(TIME, GETDATE());
-    
-    IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
-    BEGIN
-        INSERT INTO Ventas.Factura (
-            nroFactura, TipoFactura, sucursalID, 
-            Fecha, Hora, MedioPago, Empleado)
-        VALUES (
-            @nroFactura, @TipoFactura, @Sucursal, @Fecha, @Hora, @MedioPago, @Empleado);
-    END
-    ELSE
-    BEGIN
-        PRINT 'La factura con este n�mero ya existe y no se ha insertado.';
-    END
-END;
-GO
-
 -- INSERTAR NUEVA SUCURSAL
 CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevaSucursal
     @CiudadSucursal VARCHAR(50),
@@ -143,7 +112,7 @@ BEGIN
     END
     ELSE
     BEGIN
-        PRINT 'La sucursal en esta ciudad y direcci�n ya existe y no se ha insertado.';
+        PRINT 'La sucursal en esta ciudad y direccion ya existe y no se ha insertado.';
     END
 END;
 GO
@@ -289,7 +258,7 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
+CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA Supervisores, hecho con fines didacticos no es necesario
     @FraseClave NVARCHAR(128)
 AS
 BEGIN
@@ -379,6 +348,37 @@ BEGIN
 END;
 GO
 
+-- INSERTAR UNA NUEVA FACTURA
+CREATE OR ALTER PROCEDURE Ventas.CrearFactura
+    @nroFactura VARCHAR(50),
+    @TipoFactura VARCHAR(10),
+    @Sucursal INT,
+    @Cliente INT,   
+    @MedioPago INT,
+    @Empleado INT
+AS
+BEGIN
+    DECLARE @Fecha DATETIME;
+    DECLARE @Hora TIME;
+    SET @Fecha = GETDATE();
+    SET @Hora = CONVERT(TIME, GETDATE());
+    
+    IF NOT EXISTS (SELECT 1 FROM Ventas.Factura WHERE nroFactura = @nroFactura)
+    BEGIN
+        INSERT INTO Ventas.Factura (
+            nroFactura, TipoFactura, sucursalID, clienteID, 
+            Fecha, Hora, MedioPago, Empleado)
+        VALUES (
+            @nroFactura, @TipoFactura, @Sucursal, @Cliente, 
+            @Fecha, @Hora, @MedioPago, @Empleado);
+    END
+    ELSE
+    BEGIN
+        PRINT 'La factura con este numero ya existe y no se ha insertado.';
+    END
+END;
+GO
+
 
 --INSERTAR LINEA DE FACTURA
 CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura
@@ -396,14 +396,14 @@ BEGIN
 
             IF EXISTS (SELECT 1 FROM Ventas.LineaFactura WHERE FacturaID = @FacturaID AND ProductoID = @ProductoID)
             BEGIN
-                PRINT 'El producto ya est� en la factura.';
+                PRINT 'El producto ya esta en la factura.';
             END
             ELSE
             BEGIN
 
                 INSERT INTO Ventas.LineaFactura (FacturaID, ProductoID, Cantidad, PrecioU)
                 VALUES (@FacturaID, @ProductoID, @Cantidad, @PrecioU);
-                PRINT 'L�nea de producto creada exitosamente.';
+                PRINT 'Linea de producto creada exitosamente.';
             END
         END
         ELSE
@@ -412,7 +412,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        PRINT 'Error al crear la l�nea de producto:';
+        PRINT 'Error al crear la linea de producto:';
         PRINT ERROR_MESSAGE();
     END CATCH
 END;
@@ -426,11 +426,16 @@ CREATE OR ALTER PROCEDURE Ventas.PagarFactura
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Ventas.Factura WHERE IDFactura = @IDFactura AND IdentificadorPago IS NULL)
+        -- Verifica si la factura existe y su IdentificadorPago contiene '--' utilizando LIKE
+        IF EXISTS (SELECT 1 
+                   FROM Ventas.Factura f
+                   WHERE f.IDFactura = @IDFactura AND f.IdentificadorPago LIKE '%--%')
         BEGIN
+            -- Actualiza el identificador de pago
             UPDATE Ventas.Factura
             SET IdentificadorPago = @IdentificadorPago
             WHERE IDFactura = @IDFactura;
+
             PRINT 'Factura pagada exitosamente.';
         END
         ELSE
@@ -439,12 +444,90 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
+        -- Captura errores y los muestra
         PRINT 'Error al pagar la factura:';
         PRINT ERROR_MESSAGE();
     END CATCH
 END;
 GO
 
+CREATE OR ALTER PROCEDURE Ventas.CrearNotaDeCredito
+    @FacturaID INT,          -- ID de la factura
+    @LineaFacturaID INT      -- ID de la línea de factura
+AS
+BEGIN
+    BEGIN TRY
+        -- Inicia la transacción
+        BEGIN TRANSACTION;
+
+        -- Verifica si la factura existe y no está pagada
+        IF EXISTS (
+            SELECT 1 
+            FROM Ventas.Factura 
+            WHERE IDFactura = @FacturaID 
+              AND IdentificadorPago LIKE '%--%'
+        )
+        BEGIN
+            -- Verifica que la línea de factura exista y esté asociada a la factura
+            IF EXISTS (
+                SELECT 1 
+                FROM Ventas.LineaFactura 
+                WHERE IDLineaFactura = @LineaFacturaID 
+                  AND FacturaID = @FacturaID
+            )
+            BEGIN
+                -- Obtener los detalles de la línea de factura
+                DECLARE @ProductoID INT;
+                DECLARE @Cantidad INT;
+                DECLARE @PrecioU DECIMAL(10, 2);
+
+                SELECT 
+                    @ProductoID = ProductoID, 
+                    @Cantidad = Cantidad, 
+                    @PrecioU = PrecioU
+                FROM Ventas.LineaFactura
+                WHERE IDLineaFactura = @LineaFacturaID;
+
+                -- Insertar la nota de crédito (línea NDC)
+                INSERT INTO Ventas.LineaNDC (
+                    Cantidad, ProductoID, FacturaID, LineaFacturaID, PrecioU
+                )
+                VALUES (
+                    @Cantidad, @ProductoID, @FacturaID, @LineaFacturaID, @PrecioU
+                );
+
+                PRINT 'Nota de crédito creada exitosamente.';
+            END
+            ELSE
+            BEGIN
+                -- La línea de factura no existe o no pertenece a la factura
+                PRINT 'Error: La línea de factura no existe o no está asociada a la factura indicada.';
+                ROLLBACK TRANSACTION;
+                RETURN;
+            END
+        END
+        ELSE
+        BEGIN
+            -- La factura no existe o ya está pagada
+            PRINT 'Error: La factura no existe o ya está pagada.';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Confirma la transacción
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Manejo de errores
+        PRINT 'Error al crear la nota de crédito:';
+        PRINT ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH
+END;
+GO
+
+
+--Mostrar reporte de ventas
 CREATE OR ALTER PROCEDURE Ventas.MostrarReporteVentas
 AS
 BEGIN
@@ -454,6 +537,7 @@ BEGIN
         s.Ciudad AS [CIUDAD],
         c.TipoCliente AS [TIPO DE CLIENTE],
         c.Genero AS [GENERO],
+        cat.Descripcion AS [LINEA DE PRODUCTO],
         p.NombreProducto AS [PRODUCTO],
         p.PrecioUnitario AS [PRECIO UNITARIO],
         l.Cantidad AS [CANTIDAD],
@@ -470,10 +554,14 @@ BEGIN
     JOIN 
         Supermercado.Producto p ON l.ProductoID = p.ProductoID
     JOIN 
-        Ventas.MediosPago mp ON f.MedioPago = mp.MedioPagoName
+        Ventas.MediosPago mp ON f.MedioPago = mp.IdMedioPago
     JOIN 
-        Supermercado.Empleado e ON f.Empleado = e.Legajo
+        Supermercado.EmpleadoEncriptado e ON f.Empleado = e.EmpleadoID
     JOIN 
-        Supermercado.Sucursal s ON f.sucursalID = s.SucursalID;
+        Supermercado.Sucursal s ON f.sucursalID = s.SucursalID
+    JOIN
+        Supermercado.Categoria cat ON p.CategoriaID = cat.ID;
 END;
 GO
+
+

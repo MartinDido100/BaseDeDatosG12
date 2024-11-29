@@ -30,8 +30,6 @@ BEGIN
         GRANT EXECUTE ON SCHEMA::Ventas TO Empleado;
         GRANT EXECUTE ON SCHEMA::Supermercado TO Empleado;
 		GRANT EXECUTE ON SCHEMA::Reporte TO Empleado;
-		REVOKE EXECUTE ON SCHEMA::Supervisor FROM PUBLIC;
-		REVOKE EXECUTE ON SCHEMA::Supervisor FROM Empleado;
         PRINT 'Permiso de EXECUTE asignado al rol Empleado';
     END
     ELSE

@@ -1,8 +1,8 @@
 USE Com5600G12;
 GO
 
---Mensual: ingresando un mes y a�o determinado mostrar el total facturado por d�as de 
---la semana, incluyendo s�bado y domingo. 
+--Mensual: ingresando un mes y año determinado mostrar el total facturado por dias de 
+--la semana, incluyendo sabado y domingo. 
 CREATE OR ALTER PROCEDURE Reporte.ReporteFacturadoPorDiaXML
     @Mes INT,
     @Anio INT

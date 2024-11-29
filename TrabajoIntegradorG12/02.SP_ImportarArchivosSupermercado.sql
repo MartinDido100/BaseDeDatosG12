@@ -177,7 +177,7 @@ BEGIN
         JOIN 
             Supermercado.Sucursal s ON subquery.Sucursal = s.Ciudad
         WHERE 
-            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Direcci�n
+            subquery.RowNum = 1 -- Solo toma la primera ocurrencia por Direccion
             AND NOT EXISTS (
                 SELECT 1 
                 FROM Supermercado.Empleado e 
