@@ -28,6 +28,76 @@ BEGIN
 END;
 GO
 
+-- BORRADO LOGICO DE PRODUCTO
+CREATE OR ALTER PROCEDURE Supermercado.EliminarProducto
+    @ProductoID INT
+AS
+BEGIN
+    BEGIN TRY
+        -- Verificar existencia del producto
+        IF EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
+        BEGIN
+            DECLARE @FechaActual DATETIME = GETDATE();
+            UPDATE Supermercado.Producto SET deleted_at = @FechaActual WHERE ProductoID = @ProductoID;
+            PRINT 'Producto eliminado l�gicamente exitosamente.';
+        END
+        ELSE
+        BEGIN
+            PRINT 'El producto no existe o ya fue eliminado.';
+        END
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error al eliminar el producto:';
+        PRINT ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE Supermercado.ModificarPrecioProducto
+    @NombreProducto VARCHAR(200),
+    @NuevoPrecioArs DECIMAL(10, 2) 
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @ProductoID INT;
+    DECLARE @TipoCambioUsdToArs DECIMAL(10, 4);
+    DECLARE @NuevoPrecioUsd DECIMAL(10, 2);
+
+
+    SELECT @ProductoID = ProductoID
+    FROM Supermercado.Producto
+    WHERE NombreProducto = @NombreProducto AND deleted_at IS NULL;
+
+    IF @ProductoID IS NULL
+    BEGIN
+        PRINT 'El producto indicado no existe o está marcado como eliminado.';
+        RETURN;
+    END;
+
+    EXEC Services.ObtenerTipoCambioUsdToArs @TipoCambioUsdToArs OUTPUT;
+
+    IF @TipoCambioUsdToArs IS NULL OR @TipoCambioUsdToArs = 0
+    BEGIN
+        PRINT 'Error al obtener el tipo de cambio. Verifique la conexión con el servicio.';
+        RETURN;
+    END;
+
+
+    SET @NuevoPrecioUsd = @NuevoPrecioArs / @TipoCambioUsdToArs;
+
+    UPDATE Supermercado.Producto
+    SET PrecioUnitario = @NuevoPrecioArs,
+        PrecioUnitarioUsd = @NuevoPrecioUsd,
+        Fecha = GETDATE()
+    WHERE ProductoID = @ProductoID;
+
+    PRINT 'Precio actualizado correctamente.';
+END;
+GO
+
+
+
 -- INSERTAR UNA NUEVA FACTURA
 CREATE OR ALTER PROCEDURE Ventas.CrearFactura
     @nroFactura VARCHAR(50),
@@ -77,6 +147,29 @@ BEGIN
     END
 END;
 GO
+
+CREATE OR ALTER PROCEDURE Supermercado.CambiarTelefonoSucursal
+    @Ciudad VARCHAR(50),        
+    @NuevoTelefono VARCHAR(30)  
+AS
+BEGIN
+
+    IF EXISTS (SELECT 1 FROM Supermercado.Sucursal WHERE Ciudad = @Ciudad)
+    BEGIN
+        UPDATE Supermercado.Sucursal
+        SET Telefono = @NuevoTelefono
+        WHERE Ciudad = @Ciudad;
+
+        PRINT 'Teléfono actualizado correctamente.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'No se encontró una sucursal en la ciudad especificada.';
+    END
+END;
+GO
+
+
 
 -- INSERTAR NUEVO CLIENTE
 CREATE OR ALTER PROCEDURE Supermercado.InsertarNuevoCliente
@@ -159,6 +252,43 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER  PROCEDURE Supermercado.ModificarTurno
+    @EmpleadoID INT,
+    @NuevoTurno NVARCHAR(30)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Supermercado.EmpleadoEncriptado
+    SET Turno = @NuevoTurno
+    WHERE EmpleadoID = @EmpleadoID;
+
+    IF @@ROWCOUNT = 0
+        PRINT 'No se encontró un empleado con el ID especificado.';
+    ELSE
+        PRINT 'Turno actualizado correctamente.';
+END;
+GO
+
+CREATE OR ALTER  PROCEDURE Supermercado.ModificarCargo
+    @EmpleadoID INT,
+    @NuevoCargo NVARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Supermercado.EmpleadoEncriptado
+    SET Cargo = @NuevoCargo
+    WHERE EmpleadoID = @EmpleadoID;
+
+    IF @@ROWCOUNT = 0
+        PRINT 'No se encontró un empleado con el ID especificado.';
+    ELSE
+        PRINT 'Cargo actualizado correctamente.';
+END;
+GO
+
+
 CREATE OR ALTER PROCEDURE Supervisor.mostrarTablaEmpleadoEncriptada --SOLO PARA ADMINS
     @FraseClave NVARCHAR(128)
 AS
@@ -185,7 +315,53 @@ BEGIN
 END;
 GO
 
--- INSERTAR NUEVO MEDIO DE PAGO
+--MODIFICO LA DIRECCION, AL ESTAR ENCRIPTADO ME ASEGURO DE USAR LA MISMA CONTRASEÑA ANTERIOR
+CREATE OR ALTER PROCEDURE Supervisor.ModificarDireccion
+    @EmpleadoID INT,
+    @Contrasena NVARCHAR(256),
+    @NuevaDireccion NVARCHAR(256)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @DireccionActual VARBINARY(256);
+    DECLARE @DireccionDesencriptada NVARCHAR(256);
+    DECLARE @NuevaDireccionEncriptada VARBINARY(256);
+
+    SELECT @DireccionActual = Direccion
+    FROM Supermercado.EmpleadoEncriptado
+    WHERE EmpleadoID = @EmpleadoID;
+
+    IF @DireccionActual IS NULL
+    BEGIN
+        PRINT 'No se encontró un empleado con el ID especificado.';
+        RETURN;
+    END;
+
+    SET @DireccionDesencriptada = CONVERT(NVARCHAR(256), DecryptByPassPhrase(@Contrasena, @DireccionActual));
+	--comparo contra null, ya que en caso de pasar una contraseña incorrecta  @DireccionDesencriptada tendra ese valor
+    IF @DireccionDesencriptada IS NULL
+    BEGIN
+        PRINT 'Contraseña incorrecta. No se puede actualizar la dirección.';
+        RETURN;
+    END;
+
+    SET @NuevaDireccionEncriptada = EncryptByPassPhrase(@Contrasena, @NuevaDireccion);
+
+    UPDATE Supermercado.EmpleadoEncriptado
+    SET Direccion = @NuevaDireccionEncriptada
+    WHERE EmpleadoID = @EmpleadoID;
+
+    IF @@ROWCOUNT > 0
+        PRINT 'Dirección actualizada correctamente.';
+    ELSE
+        PRINT 'Error al actualizar la dirección.';
+END;
+GO
+
+
+
+-- INSERTAR NUEVO MEDIO DE PAGO, por consistencia no deberia poder alterar un medio de pago solo insertar
 CREATE OR ALTER PROCEDURE Ventas.InsertarNuevoMedioPago
     @MedioPagoName VARCHAR(50),
     @Descripcion VARCHAR(255)
@@ -203,30 +379,6 @@ BEGIN
 END;
 GO
 
--- BORRADO LOGICO DE PRODUCTO
-CREATE OR ALTER PROCEDURE Supermercado.EliminarProducto
-    @ProductoID INT
-AS
-BEGIN
-    BEGIN TRY
-        -- Verificar existencia del producto
-        IF EXISTS (SELECT 1 FROM Supermercado.Producto WHERE ProductoID = @ProductoID AND deleted_at IS NULL)
-        BEGIN
-            DECLARE @FechaActual DATETIME = GETDATE();
-            UPDATE Supermercado.Producto SET deleted_at = @FechaActual WHERE ProductoID = @ProductoID;
-            PRINT 'Producto eliminado l�gicamente exitosamente.';
-        END
-        ELSE
-        BEGIN
-            PRINT 'El producto no existe o ya fue eliminado.';
-        END
-    END TRY
-    BEGIN CATCH
-        PRINT 'Error al eliminar el producto:';
-        PRINT ERROR_MESSAGE();
-    END CATCH
-END;
-GO
 
 --INSERTAR LINEA DE FACTURA
 CREATE OR ALTER PROCEDURE Ventas.CrearLineaFactura

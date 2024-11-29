@@ -22,38 +22,53 @@ EXEC sp_addrolemember 'Empleado', 'martin';
 EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
 EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
 
---2 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
-GO
--- 3
-EXEC Supermercado.InsertarEmpleados 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
-GO
-
---4
-EXEC Supermercado.InsertarCategorias 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
-GO
-
--- 5
-EXEC Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
-GO
-
---6 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
-GO
-
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
-GO
-
-EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
-GO
 
 
---6 Importacion de facturas
-EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Ventas_registradas.csv'
+
+--4 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
+EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+GO
+--5
+EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
+GO
+
+--6
+EXEC Supermercado.InsertarCategorias 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+GO
+
+--7
+EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+GO
+
+--8 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\catalogo.csv'
+GO
+
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
+GO
+
+EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\Productos_importados.xlsx'
 GO
 
 
---8 Scripts varios y comunes (ejecutar en cualquier orden)
+--9 Importacion de facturas
+EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Ventas_registradas.csv'
+GO
+
+
+--10 Scripts varios y comunes (ejecutar en cualquier orden)
+
+--ingresando como al sistema como empleado se espera error de permisos, si ejecuta como supervisor es exitoso--
+EXEC Supervisor.ModificarDireccion 
+    @EmpleadoID = 1, 
+    @Contrasena = 'contraseña', 
+    @NuevaDireccion = '789 Calle Falsa, Ciudad';
+
+--ejecutando como supervisor, pero la contraseña enviada es incorrecta
+EXEC Supervisor.ModificarDireccion 
+    @EmpleadoID = 1, 
+    @Contrasena = 'ClaveIncorrecta', 
+    @NuevaDireccion = '789 Calle Falsa, Ciudad';
 
 -- Insertar un nuevo medio de pago
 EXEC Ventas.InsertarNuevoMedioPago 
@@ -73,13 +88,37 @@ EXEC Supermercado.InsertarNuevoEmpleado
     @SucursalID = 1, -- ID de la sucursal
     @Turno = 'Mañana';
 
+-- Modifico el turno de un empleado
+EXEC Supermercado.ModificarTurno @EmpleadoID = 1, @NuevoTurno = 'Mañana';
 
+
+--modifico el cargo de un empleado
+EXEC Supermercado.ModificarCargo @EmpleadoID = 1, @NuevoCargo = 'gerente';
+
+--modifico la direccion de un empleado con la contraseña correcta
+EXEC Supervisor.ModificarDireccion 
+    @EmpleadoID = 1, 
+    @Contrasena = 'MiClaveSegura123', 
+    @NuevaDireccion = '456 Calle Actualizada, Ciudad';
+
+-- modifico la direccion de un empleado con una contraseña incorrecta
+EXEC Supervisor.ModificarDireccion 
+    @EmpleadoID = 1, 
+    @Contrasena = 'ClaveIncorrecta', 
+    @NuevaDireccion = '789 Calle Falsa, Ciudad';
+
+-- -----------------------------------------------------
 -- Insertar una nueva sucursal
 EXEC Supermercado.InsertarNuevaSucursal 
     @CiudadSucursal = 'Montevideo',
     @DireccionSucursal = 'Av. Principal 1234',
     @Telefono = '099 123 456',
-    @Horario = 'Lunes a Viernes de 9:00 a 18:00';
+    @Horario = 'L a V 8 a. m.–8 p. m';
+
+EXEC Supermercado.CambiarTelefonoSucursal
+    @Ciudad = 'Montevideo',
+    @NuevoTelefono = '123-456-789';
+-- -----------------------------------------------------
 
 -- Insertar una nueva factura
 EXEC Ventas.CrearFactura
@@ -88,8 +127,10 @@ EXEC Ventas.CrearFactura
     @Sucursal = 1,
     @Cliente = 1,
     @Hora = '12:30:00',
-    @MedioPago = 1,  -- Aqu�, el MedioPago debe ser un n�mero, no una cadena (como se define en el procedimiento)
+    @MedioPago = 1,  
     @Empleado = 1;
+
+
 
 -- Insertar un nuevo producto
 EXEC Supermercado.InsertarNuevoProducto
@@ -112,8 +153,6 @@ EXEC Supermercado.InsertarNuevoProducto
 EXEC Supermercado.EliminarProducto @ProductoID = 1;
 
 
-select * from Ventas.Factura
-select * from Supermercado.Producto
 --Crear linea de factura
 EXEC Ventas.CrearLineaFactura @FacturaID = 1, @ProductoID = 1, @Cantidad = 5, @PrecioU = 150.00;
 
@@ -123,12 +162,17 @@ EXEC Ventas.CrearLineaFactura @FacturaID = 9999, @ProductoID = 1, @Cantidad = 5,
 -- Pagar factura
 EXEC Ventas.PagarFactura @IDFactura = 3347, @IdentificadorPago = 'ABCD1234';
 
+--Muestras correctamente el reporte
 EXEC Ventas.MostrarReporteVentas;
 
 
+--EJECUCION REPORTE XML (ejecutar de uno a la vez)
 EXEC Reporte.ReporteFacturadoPorDiaXML 3,2019;
+
 EXEC Reporte.ReporteFacturadoPorTurnoTrimestralXML 2019,1;
+
 EXEC Reporte.ReporteTop5ProductosPorSemanaXML 3,2019;
+
 EXEC Reporte.ReporteMenosVendidosPorMesXML 3,2019;
 
 EXEC Reporte.ReporteVentasPorCiudadPorRangoDeFechasXML'2019-3-01','2019-3-31';        
