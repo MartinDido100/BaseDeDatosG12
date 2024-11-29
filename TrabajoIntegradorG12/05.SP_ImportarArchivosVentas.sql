@@ -60,11 +60,14 @@ BEGIN
 
         DECLARE @FacturaID INT;
         DECLARE @ClienteID INT;
+	
+		DECLARE cursor_facturas CURSOR FOR
+		SELECT 
+			nroFactura, TipoFactura, Ciudad, TipoCliente, Genero, Producto, 
+			PrecioUnitario, Cantidad, Fecha, Hora, MedioPago, Empleado, IdentificadorPago
+		FROM #temp;
 
-        DECLARE cursor_facturas CURSOR FOR 
-        SELECT * FROM #temp;
-
-        OPEN cursor_facturas;
+		OPEN cursor_facturas;
 
         DECLARE @nroFactura VARCHAR(50),
                 @TipoFactura VARCHAR(20),
@@ -84,12 +87,10 @@ BEGIN
 
         WHILE @@FETCH_STATUS = 0
         BEGIN
-            -- Verificar si el cliente existe
             SELECT @ClienteID = ClienteID
             FROM Supermercado.Cliente
             WHERE TipoCliente = @TipoCliente AND Genero = @Genero;
 
-            -- Si el cliente no existe, insertarlo
             IF @ClienteID IS NULL
             BEGIN
                 INSERT INTO Supermercado.Cliente (TipoCliente, Genero)
@@ -99,8 +100,7 @@ BEGIN
                 SET @ClienteID = SCOPE_IDENTITY();
             END
 
-            -- Verificar si el empleado y el producto existen
-            IF EXISTS (SELECT 1 FROM Supermercado.Empleado WHERE Legajo = @Empleado)
+            IF EXISTS (SELECT 1 FROM Supermercado.EmpleadoEncriptado WHERE Legajo = @Empleado)
                AND EXISTS (SELECT 1 FROM Supermercado.Producto WHERE NombreProducto = @Producto AND deleted_at IS NULL)
             BEGIN
                 -- Insertar la factura si no existe
@@ -114,9 +114,9 @@ BEGIN
                         @Fecha, 
                         @Hora, 
                         (SELECT TOP 1 IdMedioPago FROM Ventas.MediosPago WHERE Descripcion = @MedioPago), 
-                        (SELECT TOP 1 EmpleadoID FROM Supermercado.Empleado WHERE Legajo = @Empleado), 
+                        (SELECT TOP 1 EmpleadoID FROM Supermercado.EmpleadoEncriptado WHERE Legajo = @Empleado), 
                         @IdentificadorPago,
-                        @ClienteID -- Asignar el ClienteID al insertar la factura
+                        @ClienteID
                     );
 
                     SET @FacturaID = SCOPE_IDENTITY(); -- Captura el ID de la factura insertada

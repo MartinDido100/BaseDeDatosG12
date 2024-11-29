@@ -1,20 +1,4 @@
 -- Script para crear roles y usuarios para la base de datos
-
----------------------------ADMIN TOTALMENTE OPCIONAL------------------------------------------------------------------------
--- 1. Crear el login para el servidor
-CREATE LOGIN messi WITH PASSWORD = 'basededatos';
-
--- 2. Cambiar al contexto de la base de datos Com5600G12
-USE Com5600G12;
-
--- 3. Crear el usuario en la base de datos 'Com5600G12' asociando el login 'fabricio'
-CREATE USER mateo FOR LOGIN messi;
-
--- 4. Asignar el rol 'sysadmin' al usuario 'fabricio' (permiso completo)
-ALTER SERVER ROLE sysadmin ADD MEMBER messi;
---------------------------------------------------------------------------------
-
-
 USE Com5600G12
 GO
 
@@ -46,6 +30,8 @@ BEGIN
         GRANT EXECUTE ON SCHEMA::Ventas TO Empleado;
         GRANT EXECUTE ON SCHEMA::Supermercado TO Empleado;
 		GRANT EXECUTE ON SCHEMA::Reporte TO Empleado;
+		REVOKE EXECUTE ON SCHEMA::Supervisor FROM PUBLIC;
+		REVOKE EXECUTE ON SCHEMA::Supervisor FROM Empleado;
         PRINT 'Permiso de EXECUTE asignado al rol Empleado';
     END
     ELSE
@@ -82,7 +68,7 @@ BEGIN
                 CREATE USER ' + QUOTENAME(@LoginUsuario) + ' FOR LOGIN ' + QUOTENAME(@LoginUsuario) + ';
                 PRINT ''Usuario creado exitosamente en la base de datos Com5600G12'';
 
-                -- Asignar el rol ''Empleado'' autom�ticamente
+                -- Asignar el rol ''Empleado'' automticamente
                 EXEC sp_addrolemember @RoleName = N''Empleado'', @MemberName = N''' + @LoginUsuario + ''';
                 PRINT ''Rol Empleado asignado exitosamente a ' + @LoginUsuario + ''';
             END

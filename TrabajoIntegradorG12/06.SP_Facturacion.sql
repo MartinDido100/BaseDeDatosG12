@@ -1,7 +1,7 @@
 USE Com5600G12
 GO
 
-CREATE PROCEDURE CrearNotaDeCreditoPorProducto
+CREATE OR ALTER PROCEDURE CrearNotaDeCreditoPorProducto
     @FacturaOriginalID INT,
     @ProductoID INT,
     @Cantidad INT

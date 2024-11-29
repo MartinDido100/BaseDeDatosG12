@@ -18,7 +18,7 @@ BEGIN
             price NVARCHAR(MAX) NOT NULL,   
             reference_price NVARCHAR(MAX) NOT NULL, 
             reference_unit NVARCHAR(100) NOT NULL, 
-            date NVARCHAR(MAX) NOT NULL    
+            date DATETIME NOT NULL
         );
 
         -- Insertar datos desde el archivo CSV

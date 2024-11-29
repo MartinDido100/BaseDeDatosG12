@@ -205,7 +205,6 @@ BEGIN
 
     DECLARE @XMLResult XML;
 
-    -- obtengo los 5 productos m�s vendidos por semana 
     ;WITH ProductosPorSemana AS (
         SELECT 
             p.NombreProducto,
@@ -261,7 +260,7 @@ BEGIN
     SET NOCOUNT ON;
     IF @Mes < 1 OR @Mes > 12
     BEGIN
-        THROW 50002, 'El mes ingresado es inv�lido. Debe ser un valor entre 1 y 12.', 1;
+        THROW 50002, 'El mes ingresado es invalido. Debe ser un valor entre 1 y 12.', 1;
     END;
 
 

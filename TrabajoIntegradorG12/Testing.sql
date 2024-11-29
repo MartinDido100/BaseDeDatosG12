@@ -6,53 +6,40 @@ USE Com5600G12;
 GO
 
 --2
--- Crear login para 'martin'
-CREATE LOGIN martin WITH PASSWORD = 'tincho32';
-
--- Crear el usuario 'martin' en la base de datos 'Com5600G12'
-CREATE USER martin FOR LOGIN martin;
-
 --Crear roles siendo supervisor
 EXEC Supervisor.CrearRolesConPermisos;
-
--- Asignar el rol 'Supervisor' al usuario 'martin'
-EXEC sp_addrolemember 'Empleado', 'martin';
 
 --3 Execs para crear un par de logins adicionales
 EXEC Supermercado.CrearLoginUserEmpleado 'soymessi','contraseña'
 EXEC Supervisor.CrearLoginUserSupervisor 'mbappe','contraseña'
 
-
-
-
 --4 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarSucursales 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarSucursales 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 --5
-EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx','contraseña'
+EXEC Supervisor.InsertarEmpleadosEncriptado 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx','contraseña'
 GO
 
 --6
-EXEC Supermercado.InsertarCategorias 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+EXEC Supermercado.InsertarCategorias 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
 --7
-EXEC Ventas.InsertarMediosPago 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Informacion_complementaria.xlsx'
+EXEC Ventas.InsertarMediosPago 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Informacion_complementaria.xlsx'
 GO
 
 --8 (Ejecutar en cualquier orden y tener en cuenta la ruta de los archivos)
-EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\catalogo.csv'
+EXEC Supermercado.InsertarProductosCatalogo 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\catalogo.csv'
 GO
 
-EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\Electronic accessories.xlsx'
+EXEC Supermercado.InsertarProductosElectronicos 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Electronic accessories.xlsx'
 GO
 
-EXEC Supermercado.InsertarProductosImportados'C:\Users\Usuario\Desktop\BaseDeDatosG12\Productos\Productos_importados.xlsx'
+EXEC Supermercado.InsertarProductosImportados'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Productos\Productos_importados.xlsx'
 GO
-
 
 --9 Importacion de facturas
-EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Ventas_registradas.csv'
+EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Ventas_registradas.csv'
 GO
 
 --10 Scripts varios y comunes (ejecutar en cualquier orden)

@@ -155,7 +155,7 @@ GO
             MedioPago INT NOT NULL,
             Empleado INT NOT NULL,
             IdentificadorPago VARCHAR(50) NULL,
-			FOREIGN KEY (Empleado) REFERENCES Supermercado.Empleado(EmpleadoID),
+			FOREIGN KEY (Empleado) REFERENCES Supermercado.EmpleadoEncriptado(EmpleadoID),
 			FOREIGN KEY (MedioPago) REFERENCES Ventas.MediosPago(IdMedioPago),
 			FOREIGN KEY (sucursalID) REFERENCES Supermercado.Sucursal(SucursalID),
 			FOREIGN KEY (clienteID) REFERENCES Supermercado.Cliente(ClienteID)
