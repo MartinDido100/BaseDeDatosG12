@@ -52,7 +52,6 @@ GO
 EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\marti\Desktop\BBDD Ap\TrabajoIntegradorG12\Ventas_registradas.csv'
 GO
 
-
 --8 Scripts varios y comunes (ejecutar en cualquier orden)
 
 -- Insertar un nuevo medio de pago
