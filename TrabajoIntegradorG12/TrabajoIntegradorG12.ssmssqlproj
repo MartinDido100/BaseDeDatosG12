@@ -60,11 +60,13 @@
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>06.SP_Facturacion.sql</FullPath>
+          <FullPath>06.SP_Facturacion.sql</FullPath>
         </FileNode>
         <FileNode Name="07.ConsultasXML.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
+          <FullPath>07.ConsultasXML.sql</FullPath>
           <FullPath>07.ConsultasXML.sql</FullPath>
         </FileNode>
         <FileNode Name="08.SP_ABM.sql">
@@ -72,17 +74,20 @@
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>08.SP_ABM.sql</FullPath>
+          <FullPath>08.SP_ABM.sql</FullPath>
         </FileNode>
         <FileNode Name="09.Borrado(opcional).sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>09.Borrado(opcional).sql</FullPath>
+          <FullPath>09.Borrado(opcional).sql</FullPath>
         </FileNode>
         <FileNode Name="10.Backup.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:DESKTOP-GM81HBQ:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>DESKTOP-GM81HBQ</AssociatedConnSrvName>
           <AssociatedConnUserName />
+          <FullPath>10.Backup.sql</FullPath>
           <FullPath>10.Backup.sql</FullPath>
         </FileNode>
         <FileNode Name="Testing.sql">

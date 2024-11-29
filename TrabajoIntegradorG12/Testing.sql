@@ -55,7 +55,6 @@ GO
 EXEC Ventas.InsertarEnTablaFacturas 'C:\Users\Usuario\Desktop\BaseDeDatosG12\Ventas_registradas.csv'
 GO
 
-
 --10 Scripts varios y comunes (ejecutar en cualquier orden)
 
 --ingresando como al sistema como empleado se espera error de permisos, si ejecuta como supervisor es exitoso--
